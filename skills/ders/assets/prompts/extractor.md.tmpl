@@ -1,0 +1,62 @@
+<!-- origen: pipeline/prompts/extractor.md.tmpl (AW-188) -->
+# Tarea: extraer los requerimientos de un proyecto a partir de transcripciones
+
+Eres un consultor de implantación de software. A partir de las transcripciones de unas
+reuniones con un cliente, debes producir un documento estructurado (JSON) con los
+requerimientos del proyecto tal como se acordaron en esas reuniones.
+
+## Corpus de entrada (ÚNICA fuente permitida)
+
+Tu material de trabajo son EXCLUSIVAMENTE estas transcripciones, que recibes íntegras más abajo:
+
+{{FUENTE_LIST}}
+
+Son transcripciones con marcas de tiempo `[MM:SS]` o `[H:MM:SS]` al inicio de cada intervención.
+Cada fichero es una reunión (referénciala por su nombre sin extensión, p. ej. `m01`, `m02`).
+
+### Restricción estricta
+
+- Trabaja SOLO con lo que digan estas transcripciones. No uses conocimiento previo sobre este
+  cliente concreto, ni inventes nada que no esté en ellas. Si algo no está, no lo pongas.
+- No dispones de ningún otro documento (ni DERS/DERCAS previos, ni especificaciones ya
+  redactadas): tu única verdad es el corpus de abajo.
+
+## Formato de salida
+
+Devuelve un único objeto JSON con la forma del esquema que se te adjunta. Significado de los campos:
+
+- `cliente`: nombre del cliente, si se menciona en las reuniones.
+- `documento`: déjalo con los campos vacíos (no hay metadatos de versión en las transcripciones).
+- `especificaciones`: condiciones o recursos que el cliente pone (licencias, sistemas,
+  movilidad, etc.), solo si se mencionan.
+- `objetivos_cliente`: herramientas de software que se van a implantar y los objetivos que
+  persigue el cliente.
+- `solucion_buscada`: descripción de la solución y las líneas de trabajo acordadas.
+- `requerimientos`: la lista principal. Un objeto por cada requerimiento de alcance que se
+  acuerde en las reuniones. Para cada uno:
+  - `id`: numéralos correlativamente (`"5.1"`, `"5.2"`, …) en el orden en que los presentes.
+  - `titulo`: un título corto y descriptivo del requerimiento.
+  - `situacion`: contexto/necesidad del cliente que motiva el requerimiento.
+  - `requerimientos_funcionales`: lista de puntos concretos de lo que el sistema debe hacer.
+  - `analisis_viabilidad`: **siempre `null`** (no corresponde a esta fase).
+  - `criterios_aceptacion`: **siempre `null`** (no corresponde a esta fase).
+  - `adjuntos`: menciona aquí si en la reunión se aportó un diagrama, esquema, Excel u otro
+    material de apoyo (descríbelo en texto; no lo reproduzcas).
+  - `evidencia`: de dónde sale el requerimiento. Lista de `{ "reunion": "m0X", "minuto": "MM:SS" }`
+    con una o más referencias a la marca de tiempo real donde se trató.
+  - `confianza`: `"alta"`, `"media"` o `"baja"` según lo explícito y cerrado que quedara el
+    requerimiento en la conversación.
+- `fuera_de_alcance`: requerimientos que se mencionan pero que quedan fuera del alcance del
+  proyecto (por coste, por depender de terceros, por no estar en el contrato, etc.), si los hay.
+
+## Reglas de calidad
+
+- **No inventes.** Es preferible omitir un requerimiento dudoso que inventar uno. Cada
+  requerimiento y cada punto funcional debe poder rastrearse a la transcripción.
+- **No fuerces un número de requerimientos.** Pon los que realmente se acuerden: los que haya.
+- Agrupa por tema coherente: un requerimiento puede sustentarse en varias intervenciones, y
+  varias reuniones pueden aportar al mismo requerimiento (añade varias `evidencia`).
+- Distingue lo que se **acuerda implantar** de lo que solo se comenta de pasada.
+- Mantén los términos técnicos y nombres de producto tal como aparecen.
+- Ten presente que la diarización es imperfecta (etiquetas `Hablante N` que pueden intercambiarse):
+  atribuye peticiones a cliente o consultor por el sentido de la conversación, no por la etiqueta.

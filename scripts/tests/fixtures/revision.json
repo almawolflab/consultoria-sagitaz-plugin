@@ -1,0 +1,12 @@
+{
+  "valido": true,
+  "errores": [],
+  "observaciones": [],
+  "n_items": 11,
+  "secciones": [
+    "fields",
+    "roles",
+    "profiles",
+    "workflows"
+  ]
+}

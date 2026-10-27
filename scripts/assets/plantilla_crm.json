@@ -1,0 +1,1770 @@
+{
+  "meta": {
+    "nombre": "CRM ES Proyectos",
+    "idioma": "es",
+    "version": "2026-09",
+    "origen": "derivado de la plantilla estándar SagitaZ «CRM ES Proyectos»",
+    "base_xlsx": "plantilla_crm_base.xlsx"
+  },
+  "planes": {
+    "estandar": 10,
+    "professional": 150,
+    "enterprise": 300,
+    "notas": [
+      "En el módulo de Llamadas no se pueden crear campos"
+    ]
+  },
+  "origen_col": "Origen",
+  "columnas": {
+    "A": [
+      "Módulo",
+      "Diseño",
+      "Sección",
+      "Campo",
+      "Tipo de datos",
+      "Límite máximo de caracteres",
+      "Propiedades de Campo",
+      "Valores de campo tipo Lista",
+      "Campo primario",
+      "Campo secundario",
+      "Valor",
+      "Operador"
+    ],
+    "B": [
+      "Módulo",
+      "Campo",
+      "Tipo de datos",
+      "Límite máximo de caracteres",
+      "Propiedades",
+      "Valores de campo tipo Lista",
+      "Campo primario",
+      "Campo secundario",
+      "Valor",
+      "Operador",
+      "Condición",
+      "Mensaje"
+    ]
+  },
+  "tipos": {
+    "texto": {
+      "zoho": "text",
+      "bucket": "v1"
+    },
+    "linea unica": {
+      "zoho": "text",
+      "bucket": "v1"
+    },
+    "línea única": {
+      "zoho": "text",
+      "bucket": "v1"
+    },
+    "texto amplio": {
+      "zoho": "textarea",
+      "bucket": "v1"
+    },
+    "lista de seleccion": {
+      "zoho": "picklist",
+      "bucket": "v1"
+    },
+    "lista de selección": {
+      "zoho": "picklist",
+      "bucket": "v1"
+    },
+    "lista de seleccion multiple": {
+      "zoho": "multiselectpicklist",
+      "bucket": "v1"
+    },
+    "lista de selección multiple": {
+      "zoho": "multiselectpicklist",
+      "bucket": "v1"
+    },
+    "numero": {
+      "zoho": "integer",
+      "bucket": "v1"
+    },
+    "número": {
+      "zoho": "integer",
+      "bucket": "v1"
+    },
+    "numerico": {
+      "zoho": "integer",
+      "bucket": "v1"
+    },
+    "numérico": {
+      "zoho": "integer",
+      "bucket": "v1"
+    },
+    "numero entero largo": {
+      "zoho": "bigint",
+      "bucket": "v1"
+    },
+    "decimal": {
+      "zoho": "double",
+      "bucket": "v1"
+    },
+    "porcentaje": {
+      "zoho": "double",
+      "bucket": "v1"
+    },
+    "moneda": {
+      "zoho": "currency",
+      "bucket": "v1"
+    },
+    "fecha": {
+      "zoho": "date",
+      "bucket": "v1"
+    },
+    "fecha/hora": {
+      "zoho": "datetime",
+      "bucket": "v1"
+    },
+    "casilla de verificacion": {
+      "zoho": "boolean",
+      "bucket": "v1"
+    },
+    "casilla de verificación": {
+      "zoho": "boolean",
+      "bucket": "v1"
+    },
+    "check": {
+      "zoho": "boolean",
+      "bucket": "v1"
+    },
+    "correo electronico": {
+      "zoho": "email",
+      "bucket": "v1"
+    },
+    "correo electrónico": {
+      "zoho": "email",
+      "bucket": "v1"
+    },
+    "telefono": {
+      "zoho": "phone",
+      "bucket": "v1"
+    },
+    "teléfono": {
+      "zoho": "phone",
+      "bucket": "v1"
+    },
+    "url": {
+      "zoho": "website",
+      "bucket": "v1"
+    },
+    "usuario": {
+      "zoho": "ownerlookup",
+      "bucket": "mas_adelante"
+    },
+    "lookup": {
+      "zoho": "lookup",
+      "bucket": "mas_adelante"
+    },
+    "buscador": {
+      "zoho": "lookup",
+      "bucket": "mas_adelante"
+    },
+    "campo autonumerico": {
+      "zoho": "autonumber",
+      "bucket": "mas_adelante"
+    },
+    "campo autonumérico": {
+      "zoho": "autonumber",
+      "bucket": "mas_adelante"
+    },
+    "campo de tipo formula": {
+      "zoho": "formula",
+      "bucket": "mas_adelante"
+    },
+    "campo de tipo fórmula": {
+      "zoho": "formula",
+      "bucket": "mas_adelante"
+    },
+    "formula": {
+      "zoho": "formula",
+      "bucket": "mas_adelante"
+    },
+    "carga de imagen": {
+      "zoho": "imageupload",
+      "bucket": "manual"
+    }
+  },
+  "modulos": [
+    {
+      "hoja": "Posible clientes",
+      "api_name": "Leads",
+      "variante": "A",
+      "campos_estandar": [
+        {
+          "campo": "Apellidos",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Calificación",
+          "tipo": "Lista de selección",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Calle",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Cantidad de empleados",
+          "tipo": "Número",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Cargo",
+          "tipo": "Lista de selección",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Ciudad",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Correo electrónico",
+          "tipo": "Correo electrónico",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Correo electrónico secundario",
+          "tipo": "Correo electrónico",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Fecha/hora",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Código Postal",
+          "tipo": "Número",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio",
+          "seccion": "Información de la Descripción"
+        },
+        {
+          "campo": "Empresa*",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Estado del Lead",
+          "tipo": "Lista de selección",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Fax",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Fuente del lead",
+          "tipo": "Lista de selección",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "ID de Skype",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Imagen de Lead",
+          "tipo": "Carga de imagen",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Ingresos anuales",
+          "tipo": "Moneda",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Fecha/hora",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Móvil",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "No participación del correo electrónico",
+          "tipo": "Casilla de verificación",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Nombre",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Nº de trabajadores",
+          "tipo": "Número",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "País",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Propietario de Lead",
+          "tipo": "Usuario",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Sector",
+          "tipo": "Lista de selección",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Sitio web",
+          "tipo": "URL",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Teléfono",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Twitter",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Título",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        }
+      ]
+    },
+    {
+      "hoja": "Contactos",
+      "api_name": "Contacts",
+      "variante": "A",
+      "campos_estandar": [
+        {
+          "campo": "Apellidos",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Ciudad para correspondencia",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Correo electrónico",
+          "tipo": "Correo electrónico",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Correo electrónico secundario",
+          "tipo": "Correo electrónico",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto",
+          "seccion": "Información del Sistema"
+        },
+        {
+          "campo": "Código postal para correspondencia",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Departamento",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio",
+          "seccion": "Información de la Descripción"
+        },
+        {
+          "campo": "Domicilio para correspondencia",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Estado para correspondencia",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Fuente de Posible cliente",
+          "tipo": "Lista de selección",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "ID de Skype",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Imagen de Contacto",
+          "tipo": "Carga de imagen",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Móvil",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "N.º de teléfono del asistente",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "No participación del correo electrónico",
+          "tipo": "Casilla de verificación",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Nombre",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Nombre de Cuenta",
+          "tipo": "Buscador",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Otra ciudad",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Otro código postal",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Otro domicilio",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Otro estado",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Otro país",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Otro teléfono",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "País para correspondencia",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Propietario de Contacto",
+          "tipo": "Usuario",
+          "seccion": "Información del Sistema"
+        },
+        {
+          "campo": "Subordinado de",
+          "tipo": "Buscador",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Teléfono",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Teléfono particular",
+          "tipo": "Teléfono",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Twitter",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        },
+        {
+          "campo": "Título",
+          "tipo": "Texto",
+          "seccion": "Información del contacto"
+        }
+      ]
+    },
+    {
+      "hoja": "Oportunidades",
+      "api_name": "Deals",
+      "variante": "A",
+      "campos_estandar": [
+        {
+          "campo": "Canal",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio",
+          "seccion": "Información de la descripción"
+        },
+        {
+          "campo": "Fase",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Fecha de cierre",
+          "tipo": "Fecha",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Fuente de Campaña",
+          "tipo": "Buscador",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Fuente de Posible cliente",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Importe",
+          "tipo": "Moneda",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Ingresos esperados",
+          "tipo": "Moneda",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Nombre de Contacto",
+          "tipo": "Buscador",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Nombre de Cuenta",
+          "tipo": "Buscador",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Nombre de Oportunidades",
+          "tipo": "Texto",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Probabilidad (%)",
+          "tipo": "Número",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Propietario de Oportunidades",
+          "tipo": "Usuario",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Siguiente paso",
+          "tipo": "Texto",
+          "seccion": "Información de la Oportunidad"
+        },
+        {
+          "campo": "Tipo",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la Oportunidad"
+        }
+      ]
+    },
+    {
+      "hoja": "Cuentas",
+      "api_name": "Accounts",
+      "variante": "A",
+      "campos_estandar": [
+        {
+          "campo": "Calificación",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Ciudad de envío",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Ciudad de facturación",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Cuenta principal",
+          "tipo": "Buscador",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Código de envío",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Código de facturación",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Código SIC",
+          "tipo": "Número",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio",
+          "seccion": "Información de la descripción"
+        },
+        {
+          "campo": "Domicilio de envío",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Domicilio de facturación",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Empleados",
+          "tipo": "Número",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Estado de envío",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Estado de facturación",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Fax",
+          "tipo": "Teléfono",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Imagen de Cuenta",
+          "tipo": "Carga de imagen",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Ingresos anuales",
+          "tipo": "Moneda",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Nombre de Cuenta",
+          "tipo": "Texto",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Número de Cuenta",
+          "tipo": "Numero entero largo",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "País de envío",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "País de facturación",
+          "tipo": "Texto",
+          "seccion": "Dirección"
+        },
+        {
+          "campo": "Propietario",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Propietario de Cuenta",
+          "tipo": "Usuario",
+          "seccion": "Información del sistema"
+        },
+        {
+          "campo": "Sector",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Sitio de Cuenta",
+          "tipo": "Texto",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Sitio web",
+          "tipo": "URL",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Símbolo del valor",
+          "tipo": "Texto",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Teléfono",
+          "tipo": "Teléfono",
+          "seccion": "Información de la cuenta"
+        },
+        {
+          "campo": "Tipo de Cuenta",
+          "tipo": "Lista de selección",
+          "seccion": "Información de la cuenta"
+        }
+      ]
+    },
+    {
+      "hoja": "Productos",
+      "api_name": "Products",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Cant. pedida",
+          "tipo": "Decimal"
+        },
+        {
+          "campo": "Cantidad en demanda",
+          "tipo": "Decimal"
+        },
+        {
+          "campo": "Cantidad en existencias",
+          "tipo": "Decimal"
+        },
+        {
+          "campo": "Categoría de Producto",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Comisión",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de Producto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Fabricante",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Fecha de finalización de asistencia",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Fecha de finalización de las ventas",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Fecha de inicio de asistencia",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Fecha de inicio de las ventas",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Gravable",
+          "tipo": "Casilla de verificación"
+        },
+        {
+          "campo": "Imagen de Producto",
+          "tipo": "Carga de imagen"
+        },
+        {
+          "campo": "Impuesto",
+          "tipo": "Lista de selección multiple"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nivel de reposición",
+          "tipo": "Decimal"
+        },
+        {
+          "campo": "Nombre de Producto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Proveedor",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Precio por unidad",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Producto Activo",
+          "tipo": "Casilla de verificación"
+        },
+        {
+          "campo": "Propietario de Producto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Responsable",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Unidad de uso",
+          "tipo": "Lista de selección"
+        }
+      ]
+    },
+    {
+      "hoja": "Presupuestos",
+      "api_name": "Quotes",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Ajuste",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Asunto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Descuento",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Domicilio de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Domicilio de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Equipo",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Fase de Presupuesto",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Impuesto",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de Cuenta",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de Oportunidades",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Número de Presupuesto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Propietario de Presupuesto",
+          "tipo": "Usuario"
+        },
+        {
+          "campo": "Subtotal",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Total general",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Transportista",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Términos y condiciones",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Válido hasta",
+          "tipo": "Fecha"
+        }
+      ]
+    },
+    {
+      "hoja": "Orden de compra",
+      "api_name": "Purchase_Orders",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Ajuste",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Asunto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Comisión de venta",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Descuento",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Domicilio de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Domicilio de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Estado de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Fecha de la orden de compra",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Fecha de vencimiento",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Impuesto",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Impuesto al consumo",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de Proveedor",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Número de orden·de·compra",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Número de requisición",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Número de seguimiento",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Propietario de Orden de compra",
+          "tipo": "Usuario"
+        },
+        {
+          "campo": "Subtotal",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Total general",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Transportista",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Términos y condiciones",
+          "tipo": "Texto amplio"
+        }
+      ]
+    },
+    {
+      "hoja": "Orden de  Venta",
+      "api_name": "Sales_Orders",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Ajuste",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Asunto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Comisión de venta",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Descuento",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Domicilio de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Domicilio de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Estado de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Fecha de vencimiento",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Impuesto",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Impuesto al consumo",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "N.º de cliente",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de Cuenta",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de Oportunidades",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de Presupuesto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Número de SO",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Orden de compra",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Pendiente",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Propietario de Orden de venta",
+          "tipo": "Usuario"
+        },
+        {
+          "campo": "Subtotal",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Total general",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Transportista",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Términos y condiciones",
+          "tipo": "Texto amplio"
+        }
+      ]
+    },
+    {
+      "hoja": "Facturas",
+      "api_name": "Invoices",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Ajuste",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Asunto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Comisión de venta",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Descuento",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Domicilio de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Domicilio de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Estado de envío",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Fecha de factura",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Fecha de vencimiento",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Impuesto",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Impuesto al consumo",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Nombre de cuenta",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Número de Factura",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Orde de compra",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Orden de venta",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "País de envio",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País de facturación",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Propietario de factura",
+          "tipo": "Usuario"
+        },
+        {
+          "campo": "Subtotal",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Total general",
+          "tipo": "Formula"
+        },
+        {
+          "campo": "Términos y condiciones",
+          "tipo": "Texto amplio"
+        }
+      ]
+    },
+    {
+      "hoja": "Campañas",
+      "api_name": "Campaigns",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Campaña superior",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Coste presupuestado",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Coste real",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Fecha de finalización",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Fecha de inicio",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Ingresos esperados",
+          "tipo": "Moneda"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Campaña",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Número de envíos",
+          "tipo": "Número"
+        },
+        {
+          "campo": "Propietario de Campaña",
+          "tipo": "Usuario"
+        },
+        {
+          "campo": "Respuesta esperada",
+          "tipo": "Número"
+        },
+        {
+          "campo": "Tipo",
+          "tipo": "Lista de selección"
+        }
+      ]
+    },
+    {
+      "hoja": "Proveedores",
+      "api_name": "Vendors",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Calle",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Categoría",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ciudad",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Correo electrónico",
+          "tipo": "Correo electrónico"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Cuenta LM",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Código postal",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Imagen de Proveedor",
+          "tipo": "Carga de imagen"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de Proveedor",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "País",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Propietario de Proveedor",
+          "tipo": "Usuario"
+        },
+        {
+          "campo": "Sitio web",
+          "tipo": "URL"
+        },
+        {
+          "campo": "Teléfono",
+          "tipo": "Teléfono"
+        }
+      ]
+    },
+    {
+      "hoja": "Catálogo de precios",
+      "api_name": "Price_Books",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Activo",
+          "tipo": "Casilla de verificación"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Modelo de precios",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        }
+      ]
+    },
+    {
+      "hoja": "Tareas",
+      "api_name": "Tasks",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Asunto",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Estado",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Fecha de vencimiento",
+          "tipo": "Fecha"
+        },
+        {
+          "campo": "Hora de cierre",
+          "tipo": "Fecha/hora"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Prioridad",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Relacionado con",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Titular de la tarea",
+          "tipo": "Buscador"
+        }
+      ]
+    },
+    {
+      "hoja": "Reuniones",
+      "api_name": "Events",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "A",
+          "tipo": "Fecha/hora"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "De",
+          "tipo": "Fecha/hora"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Host",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Relacionado con",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Repetir",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Todo el día",
+          "tipo": "Casilla de verificación"
+        },
+        {
+          "campo": "Título",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Ubicación",
+          "tipo": "Texto"
+        }
+      ]
+    },
+    {
+      "hoja": "Llamadas",
+      "api_name": "Calls",
+      "variante": "B",
+      "campos_estandar": [
+        {
+          "campo": "Agenda de llamadas",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Creado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Descripción",
+          "tipo": "Texto amplio"
+        },
+        {
+          "campo": "Duración de la llamada",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Estado de llamada saliente",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Hora de inicio de la llamada",
+          "tipo": "Fecha/hora"
+        },
+        {
+          "campo": "Identificador de llamada",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Modificado por",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Nombre de contacto",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Número marcado",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Propietario de la llamada",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Propósito de la llamada",
+          "tipo": "Lista de selección"
+        },
+        {
+          "campo": "Relacionado con",
+          "tipo": "Buscador"
+        },
+        {
+          "campo": "Resultado de la llamada",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Scheduled in CRM",
+          "tipo": "Texto"
+        },
+        {
+          "campo": "Tipo de llamada",
+          "tipo": "Texto"
+        }
+      ]
+    }
+  ],
+  "especiales": {
+    "notificaciones": {
+      "hoja": "Notificaciones",
+      "columnas": [
+        "Módulo",
+        "Trigger",
+        "Plantilla",
+        "Medio"
+      ],
+      "bucket": "manual"
+    },
+    "workflow": {
+      "hoja": "Workflow",
+      "columnas": [
+        "Nombre",
+        "Modulo",
+        "Descripción"
+      ]
+    }
+  }
+}

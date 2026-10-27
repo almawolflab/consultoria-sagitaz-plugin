@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "cliente": "Jaque Legal",
+    "source_dercas": "Jaque Legal DERCAS (1) (1).pdf",
+    "org_id": "693026068",
+    "note": "IR hecho a mano con los artefactos JLT_ que el spike §10 dejó en el sandbox 'Prueba Salto'. Sirve para probar idempotencia (todo debe resolver a skip)."
+  },
+
+  "fields": [
+    { "id": "fld-origen", "from": "5.4/5.1",
+      "match": {"module": "Leads", "api_name": "JLT_Origen_Referido"},
+      "payload": {
+        "module": "Leads", "field_label": "JLT Origen/Referido", "data_type": "picklist",
+        "pick_list_values": [
+          {"display_value": "Jaque Legal (JL)", "actual_value": "Jaque Legal (JL)"},
+          {"display_value": "Hipotecasos (MTP)", "actual_value": "Hipotecasos (MTP)"},
+          {"display_value": "Legaltech (BDT)", "actual_value": "Legaltech (BDT)"},
+          {"display_value": "Particular (COL1)", "actual_value": "Particular (COL1)"}
+        ]
+      }
+    },
+    { "id": "fld-servicio", "from": "5.1",
+      "match": {"module": "Leads", "api_name": "JLT_Servicio_Campana"},
+      "payload": {
+        "module": "Leads", "field_label": "JLT Servicio (Campana)", "data_type": "picklist",
+        "pick_list_values": [
+          {"display_value": "Complemento/Brecha", "actual_value": "Complemento/Brecha"},
+          {"display_value": "Revolving/Transpar.", "actual_value": "Revolving/Transpar."},
+          {"display_value": "Cartel de coches", "actual_value": "Cartel de coches"},
+          {"display_value": "Hipotecas", "actual_value": "Hipotecas"},
+          {"display_value": "LSO", "actual_value": "LSO"},
+          {"display_value": "Consultas", "actual_value": "Consultas"},
+          {"display_value": "Lesiones", "actual_value": "Lesiones"},
+          {"display_value": "Defensa del monitorio", "actual_value": "Defensa del monitorio"}
+        ]
+      }
+    },
+    { "id": "fld-motivo", "from": "5.1",
+      "match": {"module": "Leads", "api_name": "JLT_Motivo_de_perdida"},
+      "payload": {
+        "module": "Leads", "field_label": "JLT Motivo de perdida", "data_type": "picklist",
+        "pick_list_values": [
+          {"display_value": "No contesta", "actual_value": "No contesta"},
+          {"display_value": "No viable", "actual_value": "No viable"},
+          {"display_value": "No quiere", "actual_value": "No quiere"},
+          {"display_value": "Repetido", "actual_value": "Repetido"}
+        ]
+      }
+    },
+    { "id": "fld-fecha-recordatorio", "from": "5.10",
+      "match": {"module": "Leads", "api_name": "JLT_Fecha_Recordatorio"},
+      "payload": {"module": "Leads", "field_label": "JLT Fecha Recordatorio", "data_type": "date"}
+    }
+  ],
+
+  "roles": [
+    { "id": "role-ceo", "from": "5.3", "match": {"name": "JLT CEO"},
+      "payload": {"name": "JLT CEO", "display_label": "JLT CEO", "reporting_to": {"name": "Gerencia"}} },
+    { "id": "role-gerente", "from": "5.3", "depends_on": ["role-ceo"],
+      "match": {"name": "JLT Gerente comercial"},
+      "payload": {"name": "JLT Gerente comercial", "display_label": "JLT Gerente comercial",
+                  "reporting_to": {"name": "JLT CEO"}} },
+    { "id": "role-comerciales", "from": "5.3", "depends_on": ["role-gerente"],
+      "match": {"name": "JLT Comerciales"},
+      "payload": {"name": "JLT Comerciales", "display_label": "JLT Comerciales",
+                  "reporting_to": {"name": "JLT Gerente comercial"}} },
+    { "id": "role-admin", "from": "5.3", "depends_on": ["role-ceo"],
+      "match": {"name": "JLT Administracion"},
+      "payload": {"name": "JLT Administracion", "display_label": "JLT Administracion",
+                  "reporting_to": {"name": "JLT CEO"}} },
+    { "id": "role-cobranza", "from": "5.3", "depends_on": ["role-admin"],
+      "match": {"name": "JLT Cobranza"},
+      "payload": {"name": "JLT Cobranza", "display_label": "JLT Cobranza",
+                  "reporting_to": {"name": "JLT Administracion"}} }
+  ],
+
+  "profiles": [
+    { "id": "prof-comercial", "from": "5.3", "match": {"name": "JLT Comercial"},
+      "payload": {"clone_from": "Standard", "name": "JLT Comercial",
+                  "description": "Comercial: sin acceso a Oportunidades (Deals)"} }
+  ],
+
+  "workflows": [
+    { "id": "wf-recordatorio", "from": "5.10/5.1",
+      "depends_on": ["fld-origen", "fld-fecha-recordatorio"],
+      "match": {"module": "Leads", "name": "JLT Recordatorio firma Hoja de encargo"},
+      "payload": {
+        "name": "JLT Recordatorio firma Hoja de encargo",
+        "module": {"api_name": "Leads"},
+        "execute": {"on": "create_or_edit"},
+        "criteria_message": "JLT_Origen_Referido = 'Jaque Legal (JL)'"
+      }
+    }
+  ]
+}

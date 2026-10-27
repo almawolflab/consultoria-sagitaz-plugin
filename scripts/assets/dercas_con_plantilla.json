@@ -1,0 +1,545 @@
+{
+  "cliente": "Tu Fisio",
+  "documento": {
+    "version": "",
+    "autor": "",
+    "fecha": "",
+    "comentario": ""
+  },
+  "control_documentos": {
+    "tablas": [
+      "Versiones",
+      "Revisiones",
+      "Aprobaciones"
+    ]
+  },
+  "objetivo_documento": "El propósito de este Documento de Especificaciones y Requerimientos de Software (DERS) / Documento de Especificaciones, Requerimientos y Criterios de Aceptación de Software (DERCAS) es describir las adecuaciones que se efectuarán como requerimientos en la implementación de Zoho CRM para Tu Fisio por parte del implantador especializado SagitaZ.\n\nPara comprender la necesidad del DERS y DERCAS es necesario entender los siguientes conceptos:\n- Especificaciones: características técnicas y aplicaciones de software necesarias para la realización del proyecto.\n- Requerimientos del cliente: requerimientos funcionales (necesidades comunicadas por el cliente) y requerimientos no funcionales (restricciones a tener en cuenta para crear la solución).\n- Análisis de viabilidad: funcionamiento propuesto de la solución a entregar y su justificación.\n- Criterios de aceptación: métodos de verificación del cumplimiento del requerimiento.\n\nEn el DERCAS, a partir de cada requerimiento documentado se mostrará, al menos, un modo de comprobar que dicho requerimiento se cumple.",
+  "especificaciones": [
+    "Se entiende por especificaciones las condiciones de trabajo y/o recursos que el cliente pone a disposición de SagitaZ con carácter previo al inicio del desarrollo del proyecto. A continuación se detallan las especificaciones vigentes al momento de redacción de este documento:",
+    "Licencias: Se contratarán las licencias [PENDIENTE: licencias contratadas] de Zoho estipuladas en el contrato.",
+    "Ancho de banda disponible: Actualmente Tu Fisio dispone de un ancho de banda contratada y no se plantea aumentarlo.",
+    "Sistema operativo: la solución deberá ser compatible con Windows, Linux y macOS.",
+    "Movilidad: la solución deberá funcionar en dispositivos móviles y tablets con sistema operativo Android e iOS.",
+    "Gestión del sistema: la solución deberá ser manejable y sostenible por el equipo actual de Tu Fisio, sin requerir nuevas incorporaciones de personal."
+  ],
+  "objetivos_cliente": {
+    "herramientas": [
+      "Zoho One",
+      "Zoho LeadChain (500 contactos/mes)"
+    ],
+    "puntos": [
+      "Migrar de HubSpot a Zoho por reducción de costes operativos",
+      "Organizar el departamento de ventas y el seguimiento de leads",
+      "Mejorar el etiquetado y flujo de leads (MQL, SQL)",
+      "Implementar automatizaciones y lead scoring"
+    ]
+  },
+  "solucion_buscada": {
+    "descripcion": "Implantación de un sistema centralizado para la captación, cualificación y gestión de ventas, automatizando procesos de marketing y comunicación, y definiendo un embudo claro para la conversión y retención de clientes.",
+    "lineas_trabajo": [
+      "Toma de requerimientos y documentación",
+      "Configuración de la herramienta",
+      "Migración de datos",
+      "Formación a nivel usuario y administrador"
+    ]
+  },
+  "requerimientos": [
+    {
+      "numero": "5.1",
+      "titulo": "Canales de entrada, cualificación y gestión del posible cliente",
+      "seccion": "5",
+      "seccion_titulo": "Requerimientos Alcances CRM",
+      "situacion": "Los leads entran por múltiples canales (formularios web, publicidad, WhatsApp, portal de empleo). Actualmente la asignación a comerciales es manual. La categorización y el registro del origen a menudo requieren trabajo manual. No existe un sistema de lead scoring automatizado; todos los leads con datos de contacto se tratan como SQL.",
+      "requerimientos_funcionales": [
+        "Capturar automáticamente los leads desde los distintos canales de entrada (formularios web, publicidad en redes sociales).",
+        "Categorizar y etiquetar automáticamente el origen y la campaña del lead.",
+        "Implementar reglas de asignación automática de leads al equipo comercial.",
+        "Implementar un sistema de lead scoring para calificar a los leads y diferenciar su madurez (ej. MQL vs SQL).",
+        "Gestionar la deduplicación de leads, fusionando registros basados en el correo electrónico o coincidencias de nombre y teléfono."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se implementará la captación automática desde Meta Ads mediante la integración con LeadSync. Los formularios web se integrarán nativamente en CRM (se configurarán dos de prueba: uno de colegio y otro de descarga de guía con campos ocultos para categorizar el origen). Para la página de empleo, la importación será manual. La asignación de leads a los comerciales se realizará mediante una regla de asignación automática por turno rotativo (round-robin), enviando una notificación al comercial asignado. Se configurará un sistema de lead scoring nativo que sumará/restará puntos por perfil (ej. Clínica +20, Fisio +10, Premium +15, Pro +5) y por origen/interacción (Meta Ads +15, Empleo -15, estado contactado +10). Mediante reglas de flujo (workflows), se asignará automáticamente el campo 'Prioridad' (Alta para >=40, Media para 10-39, Baja para <10). Para la deduplicación, se establecerá el correo electrónico como campo único; en entradas manuales el sistema bloqueará la creación, y en entradas automáticas enviará el registro a una bandeja de aprobación para su revisión y posible fusión. El flujo de cualificación utilizará los estados: nuevo lead, intento de contacto, contactar en el futuro, cualificado, nurturing y descartado.",
+      "criterios_aceptacion": [
+        "Se verifica que [ingresa un lead desde Meta Ads o formulario web] → [el registro se crea automáticamente en Zoho CRM con su origen categorizado].",
+        "Se verifica que [ingresa un nuevo lead] → [el sistema lo asigna equitativamente a un comercial mediante round-robin y envía una notificación].",
+        "Se verifica que [un lead cumple criterios de perfil o interacción] → [el sistema calcula su puntuación y actualiza automáticamente el campo Prioridad (Alta, Media, Baja)].",
+        "Se verifica que [se intenta crear un lead manual con un correo existente] → [el sistema bloquea la creación por duplicidad].",
+        "Se verifica que [ingresa un lead automático con correo existente] → [el registro se envía a la bandeja de aprobación para su revisión o fusión]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m01",
+          "minuto": "30:00"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "10:37"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "13:53"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "15:40"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "44:05"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "5.2",
+      "titulo": "Proceso de Oportunidades",
+      "seccion": "5",
+      "seccion_titulo": "Requerimientos Alcances CRM",
+      "situacion": "El proceso de ventas se gestiona mediante notas y estados básicos (Ganado/Perdido). No hay un embudo visual claro. Tras un primer contacto, se puede agendar una demostración o iniciar un periodo de prueba de 15 días. Si el lead no contesta, se realizan hasta 3 intentos manuales y luego queda en el pipeline sin un estado claro de maduración.",
+      "requerimientos_funcionales": [
+        "Definir y visualizar un embudo de ventas con fases estructuradas (ej. Demostración, Propuesta/Negociación, Periodo de prueba).",
+        "Registrar y hacer seguimiento del periodo de prueba de 15 días de los prospectos.",
+        "Establecer un estado o proceso de maduración (nurturing) para leads que no responden tras los intentos de contacto comerciales.",
+        "Registrar el envío de ofertas y re-ofertas dentro del ciclo de vida de la oportunidad."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se activará el módulo de Oportunidades para sustituir el modelo básico de ganado/perdido. Se diseñará un Blueprint (plan de acción) con las fases: Nueva oportunidad, Solicita información, Demo agendada, Periodo de prueba, Propuesta enviada, Cerrada ganada y Cerrada perdida. Se configurarán reglas de flujo para automatizar el seguimiento: si una oportunidad permanece en 'Nueva oportunidad' por 48 horas, se enviará una alerta de inactividad; al pasar a 'Demo agendada', se creará una tarea de llamada de cierre a 1 día vista. Para el 'Periodo de prueba', se exigirá la fecha de inicio como campo obligatorio y se programarán tareas automáticas a los 10 días (seguimiento) y a los 15 días (finalización). Al pasar a 'Propuesta enviada', se generará una tarea de seguimiento a las 48 horas. Para el nurturing de leads previos a oportunidad, se exigirá el campo 'Siguiente fecha de contacto' al marcar 'Contactar a futuro' (programando una llamada) y el 'Motivo de pérdida' al marcar 'Descartado'. Si un lead queda en 'Intento de contacto' por 72 horas, se enviará una alerta al comercial.",
+      "criterios_aceptacion": [
+        "Se verifica que [se crea o avanza una oportunidad] → [el Blueprint guía al usuario por las fases definidas (Nueva oportunidad, Demo agendada, Periodo de prueba, etc.)].",
+        "Se verifica que [la oportunidad entra en 'Periodo de prueba'] → [el sistema exige la fecha de inicio y programa tareas automáticas a los 10 y 15 días].",
+        "Se verifica que [la oportunidad pasa a 'Propuesta enviada'] → [se crea automáticamente una tarea de seguimiento a las 48 horas].",
+        "Se verifica que [un lead se marca como 'Contactar a futuro' o 'Descartado'] → [el sistema exige rellenar la fecha de contacto o el motivo de pérdida mediante reglas de validación].",
+        "Se verifica que [un lead permanece 72 horas en 'Intento de contacto' o una oportunidad 48 horas en 'Nueva oportunidad'] → [el sistema envía una alerta de inactividad al comercial]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m02",
+          "minuto": "21:38"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "22:50"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "36:39"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "51:39"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:21:13"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "5.3",
+      "titulo": "Clientes",
+      "seccion": "5",
+      "seccion_titulo": "Requerimientos Alcances CRM",
+      "situacion": "Los clientes se dividen en dos tipologías principales: Fisio (independiente) y Clínica (múltiples trabajadores), con planes Pro, Premium o Starter (gratuito). La conversión a cliente y la actualización de su suscripción se hace manualmente. No hay seguimiento automatizado de renovaciones ni de inactividad en la plataforma.",
+      "requerimientos_funcionales": [
+        "Clasificar a los clientes según su tipología (Fisio o Clínica) y el plan contratado (Pro, Premium, Starter).",
+        "Registrar la fecha de alta y los datos de la suscripción activa del cliente.",
+        "Generar avisos o tareas para el equipo comercial ante próximas renovaciones de suscripciones anuales.",
+        "Generar alertas por inactividad del cliente en la plataforma para realizar acciones proactivas de retención.",
+        "Gestionar acciones de venta cruzada (cross-selling) y aumento de plan (upselling) según el perfil del cliente."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] La clasificación de clientes se gestionará mediante campos personalizados ('Tipo de cliente' con valores Clínica/Fisio y 'Tipología de plan' con valores Pro/Premium/Starter) que viajarán desde el Lead hasta el Contacto y la Oportunidad tras la conversión. Para el seguimiento postventa, retención y upselling, se implementarán reglas de flujo al marcar la oportunidad como 'Cerrada ganada': se programará automáticamente una tarea de llamada de seguimiento a los 7 días para evaluar las primeras impresiones, y otra llamada de satisfacción a los 90 días para evaluar el uso de la plataforma y proponer acciones de venta cruzada o aumento de plan (upselling).",
+      "criterios_aceptacion": [
+        "Se verifica que [se cualifica un lead] → [los campos de tipología de cliente y plan contratado se mapean y transfieren correctamente al Contacto y la Oportunidad].",
+        "Se verifica que [una oportunidad se marca como 'Cerrada ganada'] → [el sistema programa automáticamente una tarea de seguimiento a los 7 días].",
+        "Se verifica que [transcurren 90 días desde el cierre ganado] → [el sistema programa una tarea de llamada de satisfacción para evaluar upselling y retención]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m02",
+          "minuto": "41:27"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "53:28"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "58:12"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:24:16"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "6.1",
+      "titulo": "Canales de Comunicación",
+      "seccion": "6",
+      "seccion_titulo": "Requerimientos de Comunicación, Interfaz y Automatización",
+      "situacion": "Utilizan WhatsApp Business (dos líneas), telefonía externa, correo electrónico corporativo y realizan envíos masivos de forma manual exportando bases de datos a una herramienta de terceros.",
+      "requerimientos_funcionales": [
+        "Integrar el correo electrónico corporativo para tener trazabilidad bidireccional de las comunicaciones en la ficha del cliente.",
+        "Integrar el canal de mensajería instantánea (WhatsApp API) para centralizar las conversaciones comerciales.",
+        "Integrar el sistema de telefonía para el registro de llamadas y vinculación de resúmenes automáticos.",
+        "Gestionar el envío de campañas de email marketing directamente desde el sistema, segmentando por listas y eliminando la exportación manual."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se instruirá a cada usuario para integrar su correo electrónico personal de Microsoft con Zoho CRM de forma bidireccional, garantizando que el historial de correos quede registrado en la ficha del cliente. Se configurará y validará el dominio corporativo (Tu Fisio.com) mediante registros SPF y DKIM para asegurar la entregabilidad. Se habilitará el módulo de Campañas para gestionar envíos masivos en el futuro. [REQUIERE DOC DE PROYECTO] La integración de WhatsApp Business y la telefonía externa quedan fuera del alcance de esta primera fase y no se automatizarán por el momento.",
+      "criterios_aceptacion": [
+        "Se verifica que [se envía o recibe un correo desde la cuenta de Microsoft del usuario] → [el correo queda registrado automáticamente en la ficha del cliente en Zoho CRM].",
+        "Se verifica que [se configuran los registros SPF y DKIM] → [el dominio corporativo queda validado para el envío seguro de correos desde el CRM].",
+        "Se verifica que [se requiere enviar comunicaciones masivas] → [el módulo de Campañas está habilitado y disponible para su uso]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m01",
+          "minuto": "31:28"
+        },
+        {
+          "reunion": "m01",
+          "minuto": "48:57"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "23:52"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:11:21"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:19:06"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "6.2",
+      "titulo": "Personalización",
+      "seccion": "6",
+      "seccion_titulo": "Requerimientos de Comunicación, Interfaz y Automatización",
+      "situacion": "Faltan campos específicos para registrar correctamente la información de los leads y clientes. Se requiere una vista de embudo que actualmente no tienen para visualizar el estado global.",
+      "requerimientos_funcionales": [
+        "Crear campos personalizados para capturar datos específicos del negocio (tipo de plan, rol, origen detallado).",
+        "Configurar vistas de embudo (Kanban) para visualizar fácilmente en qué fase se encuentra cada registro."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se habilitarán los módulos de Leads, Contactos y Oportunidades, creando en ellos los campos personalizados requeridos (tipo de cliente, plan contratado, origen, motivo de pérdida, etc.) con sus respectivas reglas de validación y dependencias. Se configurarán listas relacionadas en las fichas para agrupar visualmente correos, llamadas, tareas y reuniones. Para facilitar la visualización del embudo, se configurará una vista Kanban en el módulo de posibles clientes basada en el estado del lead, permitiendo al comercial navegar y gestionar los registros de forma visual.",
+      "criterios_aceptacion": [
+        "Se verifica que [se accede a la ficha de un lead, contacto u oportunidad] → [están disponibles los campos personalizados específicos del negocio y las listas relacionadas de actividades].",
+        "Se verifica que [se accede al módulo de posibles clientes] → [está disponible una vista Kanban que agrupa los registros según su estado]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m02",
+          "minuto": "10:37"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "22:50"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "6.3",
+      "titulo": "Automatización y administración de procesos",
+      "seccion": "6",
+      "seccion_titulo": "Requerimientos de Comunicación, Interfaz y Automatización",
+      "situacion": "Existen flujos de trabajo antiguos. Muchas acciones, como el envío de correos de bienvenida o el seguimiento de pruebas, dependen de procesos manuales o del software interno de Tu Fisio.",
+      "requerimientos_funcionales": [
+        "Automatizar el envío de correos electrónicos transaccionales (ej. correo de bienvenida al registrarse, aviso de fin de periodo de prueba).",
+        "Automatizar la transición de estados del lead en base a acciones (ej. si no contesta tras X intentos).",
+        "Crear tareas automáticas y recordatorios para los comerciales (ej. seguimiento de renovaciones, inactividad)."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se automatizarán correos transaccionales mediante reglas de flujo: si el origen del lead es 'Colegio', se enviará automáticamente un correo con un código de descuento parametrizado; para los formularios de descarga de guía, se configurará una regla de autorrespuesta que enviará una plantilla con el PDF o enlace de descarga. Las transiciones de estado y tareas automáticas se gestionarán mediante workflows: alertas de inactividad (72h en intento de contacto, 48h en nueva oportunidad), tareas de seguimiento de periodo de prueba (10 y 15 días), seguimiento de propuesta (48h) y llamadas postventa (7 y 90 días). Se usarán reglas de validación para forzar la captura de datos clave al cambiar de estado (ej. fecha de contacto futuro, motivo de descarte).",
+      "criterios_aceptacion": [
+        "Se verifica que [ingresa un lead con origen 'Colegio'] → [el sistema envía automáticamente un correo con el código de descuento].",
+        "Se verifica que [un visitante rellena el formulario de descarga de guía] → [el sistema envía una autorrespuesta automática con el archivo o enlace].",
+        "Se verifica que [se cumplen los plazos definidos en las fases del lead u oportunidad] → [el sistema genera automáticamente las tareas de seguimiento o alertas de inactividad correspondientes]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m02",
+          "minuto": "51:39"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:11:40"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:23:01"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "7.1",
+      "titulo": "Administración de datos",
+      "seccion": "7",
+      "seccion_titulo": "Requerimientos de Integración e Inteligencia de Datos",
+      "situacion": "Tienen una base de datos histórica en su CRM actual que necesitan trasladar al nuevo sistema. Requieren políticas de respaldo de información.",
+      "requerimientos_funcionales": [
+        "Migrar la base de datos de contactos, leads y empresas (volumen aproximado de 20.000 registros).",
+        "Configurar copias de seguridad automatizadas de los datos y configuraciones (dos veces al mes)."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se configurará una copia de seguridad automática de los datos con una periodicidad de una vez al mes (el cliente podrá ajustar esta frecuencia posteriormente según sus necesidades). [REQUIERE DOC DE PROYECTO] Respecto a la migración de la base de datos histórica de 20.000 registros desde HubSpot, el consultor no ha dictado un procedimiento automatizado específico en esta fase, indicando únicamente que se instruirá al equipo de Tu Fisio para realizar importaciones manuales de forma operativa.",
+      "criterios_aceptacion": [
+        "Se verifica que [se accede a la configuración de administración de datos] → [está programada una copia de seguridad automática mensual].",
+        "Se verifica que [se requiere cargar datos históricos] → [el equipo cuenta con la formación para importar registros manualmente]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m01",
+          "minuto": "53:15"
+        },
+        {
+          "reunion": "m01",
+          "minuto": "54:33"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "7.2",
+      "titulo": "Centro de experiencia",
+      "seccion": "7",
+      "seccion_titulo": "Requerimientos de Integración e Inteligencia de Datos",
+      "situacion": "[Solo si está incluido en el proyecto — PENDIENTE DE CONFIRMAR]",
+      "requerimientos_funcionales": [],
+      "analisis_viabilidad": "[PENDIENTE — sin dictado del consultor]",
+      "criterios_aceptacion": [
+        "[PENDIENTE — sin dictado del consultor]"
+      ],
+      "adjuntos": [],
+      "evidencia": [],
+      "confianza": ""
+    },
+    {
+      "numero": "7.3",
+      "titulo": "Marketplace (integraciones)",
+      "seccion": "7",
+      "seccion_titulo": "Requerimientos de Integración e Inteligencia de Datos",
+      "situacion": "Utilizan una plataforma de pagos para suscripciones (actualmente notifica vía integrador externo a un chat), un proveedor de telefonía y plataformas de publicidad en redes sociales.",
+      "requerimientos_funcionales": [
+        "Integrar la plataforma de pagos para reflejar suscripciones, renovaciones y cancelaciones [PENDIENTE DE CONFIRMAR CON CLIENTE].",
+        "Integrar el sistema de telefonía actual.",
+        "Integrar la captación de leads desde los formularios de publicidad en redes sociales."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se integrará la captación de leads desde formularios de publicidad en redes sociales (Meta Ads) mediante la herramienta LeadSync, permitiendo la entrada automática al CRM. [REQUIERE DOC DE PROYECTO] La integración de la plataforma de pagos y del sistema de telefonía actual quedan fuera del alcance de esta primera fase y no se implementarán por el momento.",
+      "criterios_aceptacion": [
+        "Se verifica que [un usuario completa un formulario en Meta Ads] → [LeadSync captura el registro y lo crea automáticamente en Zoho CRM]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m02",
+          "minuto": "23:52"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:04:04"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:06:11"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "1:26:45"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "7.4",
+      "titulo": "ZIA",
+      "seccion": "7",
+      "seccion_titulo": "Requerimientos de Integración e Inteligencia de Datos",
+      "situacion": "[Solo si está incluido en el proyecto — PENDIENTE DE CONFIRMAR]",
+      "requerimientos_funcionales": [],
+      "analisis_viabilidad": "[PENDIENTE — sin dictado del consultor]",
+      "criterios_aceptacion": [
+        "[PENDIENTE — sin dictado del consultor]"
+      ],
+      "adjuntos": [],
+      "evidencia": [],
+      "confianza": ""
+    },
+    {
+      "numero": "8.1",
+      "titulo": "Casos y soluciones",
+      "seccion": "8",
+      "seccion_titulo": "Requerimientos de ATC",
+      "situacion": "[Solo si está incluido en el proyecto — PENDIENTE DE CONFIRMAR]",
+      "requerimientos_funcionales": [],
+      "analisis_viabilidad": "[PENDIENTE — sin dictado del consultor]",
+      "criterios_aceptacion": [
+        "[PENDIENTE — sin dictado del consultor]"
+      ],
+      "adjuntos": [],
+      "evidencia": [],
+      "confianza": ""
+    },
+    {
+      "numero": "9.1",
+      "titulo": "Descripción de los procesos personalizados",
+      "seccion": "9",
+      "seccion_titulo": "Requerimientos de Procesos personalizados",
+      "situacion": "[Solo si está incluido en el proyecto — PENDIENTE DE CONFIRMAR]",
+      "requerimientos_funcionales": [],
+      "analisis_viabilidad": "[PENDIENTE — sin dictado del consultor]",
+      "criterios_aceptacion": [
+        "[PENDIENTE — sin dictado del consultor]"
+      ],
+      "adjuntos": [],
+      "evidencia": [],
+      "confianza": ""
+    },
+    {
+      "numero": "10.1",
+      "titulo": "Configuración de la empresa",
+      "seccion": "10",
+      "seccion_titulo": "Requerimientos de la Organización",
+      "situacion": "Definición de los parámetros básicos del entorno de trabajo.",
+      "requerimientos_funcionales": [
+        "Configurar el idioma del sistema en español."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se configurará el detalle de la empresa como 'Tufisio Health Tech S.L.', el idioma base de la interfaz en español para todos los usuarios, la zona horaria en Europa/Madrid (hora de verano de Europa Central) y el año fiscal de enero a diciembre. Se definirán dos turnos de trabajo: horario de invierno (1 sept - 31 jun, L-J 9:00-14:00 y 14:30-17:30, V 9:00-14:30) y horario de verano (1 jul - 31 ago, L-V 8:00-15:00), además de festivos de prueba (24 y 31 dic). Se habilitará la funcionalidad multimoneda estableciendo el Euro como moneda base y añadiendo el Dólar como moneda de prueba, permitiendo la actualización de tasas de cambio.",
+      "criterios_aceptacion": [
+        "Se verifica que [se accede a la configuración de la empresa] → [los datos sociales, idioma español, zona horaria y año fiscal están correctamente establecidos].",
+        "Se verifica que [se revisan los turnos de trabajo] → [están configurados los horarios de invierno y verano con sus respectivas jornadas].",
+        "Se verifica que [se introduce un importe económico] → [el sistema permite operar con multimoneda (Euro/Dólar) y realiza la conversión en los informes]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m01",
+          "minuto": "43:53"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "10.2",
+      "titulo": "Roles y Perfiles de la organización y control de Seguridad",
+      "seccion": "10",
+      "seccion_titulo": "Requerimientos de la Organización",
+      "situacion": "Son 4 usuarios. Quieren que todos puedan ver toda la información, pero restringir acciones críticas a un rol administrador. Operan en el sector salud, por lo que el cumplimiento normativo de protección de datos es crítico.",
+      "requerimientos_funcionales": [
+        "Configurar el modelo de acceso para que los datos sean públicos (todos los usuarios ven todos los registros).",
+        "Definir perfiles de seguridad restrictivos para los comerciales (sin permisos de eliminación masiva ni acceso a configuraciones).",
+        "Configurar un perfil de Administrador con acceso total al sistema.",
+        "Habilitar y configurar el cumplimiento de la normativa de protección de datos (GDPR), incluyendo el envío de plantillas de consentimiento."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se configurará el uso compartido de datos como público (lectura y escritura) para que todos los usuarios vean toda la información. Se creará una estructura de roles plana ('CEO' y 'Operaciones para ventas y marketing'). A nivel de perfiles, se configurará un perfil 'Administrador' con acceso total y un perfil 'Operaciones para ventas y marketing' que tendrá permisos de lectura y edición, pero se le restringirá el permiso de eliminación, acciones masivas y configuraciones avanzadas. Respecto al GDPR, se dejará el módulo nativo de cumplimiento preparado (desactivado por ahora, ya que usan un proveedor externo) y se explicará el funcionamiento de la compatibilidad con la ley HIPAA debido a la sensibilidad de los datos de salud.",
+      "criterios_aceptacion": [
+        "Se verifica que [un usuario con rol/perfil de Operaciones accede al sistema] → [puede ver y editar todos los registros, pero no tiene permisos para eliminarlos ni acceder a la configuración].",
+        "Se verifica que [se revisa la configuración de seguridad] → [el uso compartido de datos está establecido como público].",
+        "Se verifica que [se requiere gestionar la privacidad] → [el módulo de cumplimiento GDPR está disponible en el sistema para su futura activación]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m01",
+          "minuto": "44:23"
+        },
+        {
+          "reunion": "m01",
+          "minuto": "45:27"
+        },
+        {
+          "reunion": "m01",
+          "minuto": "46:50"
+        }
+      ],
+      "confianza": ""
+    },
+    {
+      "numero": "11",
+      "titulo": "Informes",
+      "seccion": "11",
+      "seccion_titulo": "Informes",
+      "situacion": "Actualmente llevan el control de las conversiones y los indicadores clave de rendimiento de forma manual en hojas de cálculo.",
+      "requerimientos_funcionales": [
+        "Crear paneles e informes para medir conversiones, rendimiento del embudo de ventas y KPIs comerciales."
+      ],
+      "analisis_viabilidad": "[DECISIÓN CONSULTOR] Se habilitará el módulo de Informes y Análisis. Se configurará una pantalla de inicio (dashboard) predefinida para los usuarios con gráficos clave: embudo de oportunidades por fases, actividades abiertas, tasas de conversión, leads por contactar y tareas/llamadas del día. Además, se crearán vistas estándar en los módulos para medir: leads por canal de entrada, clientes por tipología de plan (Pro/Premium), registro de actividades por usuario y tasa de conversión de leads a clientes. Se instruirá al equipo para crear, programar y exportar sus propios informes (tabulares, agrupados) y paneles.",
+      "criterios_aceptacion": [
+        "Se verifica que [el usuario accede a la pantalla de inicio] → [visualiza un panel de control con gráficos de embudo, tasas de conversión y actividades pendientes].",
+        "Se verifica que [se accede a los módulos principales] → [están disponibles las vistas estándar predefinidas (leads por canal, clientes por plan, etc.)].",
+        "Se verifica que [se accede al módulo de Informes] → [es posible generar, filtrar y exportar reportes de negocio consolidados]."
+      ],
+      "adjuntos": [],
+      "evidencia": [
+        {
+          "reunion": "m02",
+          "minuto": "1:09:38"
+        }
+      ],
+      "confianza": ""
+    }
+  ],
+  "formacion": {
+    "numero": "12",
+    "titulo": "Formación",
+    "tipo": "formacion",
+    "intro": "Se requerirá formación en las herramientas a implantar en esta fase del proyecto, tanto a nivel usuario como a nivel administrador.",
+    "subapartados": [
+      {
+        "numero": "12.1.1",
+        "titulo": "Nivel usuario",
+        "contenidos": [
+          "Configuración personal en el sistema (perfil, seguridad, configuración de correo, tema/firma)",
+          "Módulos representados en el sistema",
+          "Creación y edición de registros",
+          "Información de los registros en los módulos",
+          "Acciones únicas en CRM",
+          "Gestión de datos (vistas personalizadas, filtros de correos, acciones comunes)",
+          "Proceso de Posibles clientes",
+          "Proceso de Oportunidades"
+        ]
+      },
+      {
+        "numero": "12.1.2",
+        "titulo": "Nivel administrador",
+        "contenidos": [
+          "Módulo de informes (creación, programaciones)",
+          "Módulo de análisis (paneles de información)",
+          "Usuarios y control (roles y perfiles / ajustes de uso compartido)",
+          "Canales de entrada al sistema",
+          "Personalización de CRM",
+          "Automatizaciones",
+          "Administración de datos"
+        ]
+      }
+    ]
+  },
+  "fuera_de_alcance": [
+    {
+      "titulo": "Gestión de Soporte y Tickets",
+      "situacion": "Actualmente gestionan incidencias, bugs técnicos y atención al cliente mediante WhatsApp y una herramienta externa de gestión de proyectos.",
+      "objetivos": "La integración y gestión de tickets de soporte técnico y atención al cliente post-venta se abordará en una segunda fase del proyecto, priorizando actualmente la captación y conversión.",
+      "evidencia": [
+        {
+          "reunion": "m01",
+          "minuto": "36:36"
+        },
+        {
+          "reunion": "m02",
+          "minuto": "7:28:20"
+        }
+      ]
+    }
+  ],
+  "nota_final": "Cualquier otro trabajo o implementación no detallada en este documento no estará incluido.\n\nLas ampliaciones que se quieran realizar se deberán cotizar en un proyecto aparte que incluirá un nuevo documento de estudio.",
+  "estado_documento": "Los requerimientos y especificaciones mostrados en este documento deben ser aprobados por parte del cliente, para iniciar el proceso de análisis de viabilidad y criterios de aceptación de los mismos.\n\nAl firmar de conformidad, usted acepta que cualquier trabajo no especificado en este documento no está incluido en el alcance del proyecto.\n\nFecha: _______________________\nFirmado: _____________________"
+}

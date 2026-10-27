@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+# secretos del consultor (nunca se versionan)
+zoho_crm_oauth.json
+crm_connected_app.json
+.env

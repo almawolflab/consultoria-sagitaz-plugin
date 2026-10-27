@@ -1,0 +1,58 @@
+<!-- origen: pipeline/prompts/enriquecedor.md.tmpl (AW-188) -->
+# Tarea: ENRIQUECER un borrador de DERS con el desarrollo de proceso (2.ª pasada, aditiva)
+
+Tienes un **borrador de DERS** ya extraído (1.ª pasada) que capta los «key points» pero al que le
+falta **desarrollo de proceso**: la «Situación» de varios apartados queda en puntos sueltos, sin las
+fases, estados, transiciones ni el porqué. Tu trabajo es **profundizar esos apartados usando lo que YA
+está en las transcripciones**, sin inventar y sin reescribir lo que está bien.
+
+## DERS base (a enriquecer)
+
+```json
+{{DERS_BASE}}
+```
+
+## Qué hacer
+
+- Para los apartados **con contenido** (los que ya tienen situación/requerimientos reales), reléelos
+  contra las transcripciones y **desarrolla la «situación»**: el proceso actual del cliente (fases,
+  estados, transiciones, quién hace qué, el porqué), tal y como se cuenta en las reuniones.
+- Añade `requerimientos_funcionales` que se hayan dicho y falten. **Une, no reemplaces** lo que ya hay.
+- **NO** toques los apartados con placeholder `[PENDIENTE — no tratado...]` ni `[Solo si está
+  incluido...]`: si no se hablaron, se quedan como están.
+- **NO** toques `analisis_viabilidad` ni `criterios_aceptacion` (son del DERCAS).
+
+## Defectos a corregir (si los hay)
+
+Si abajo hay defectos señalados por el revisor, **céntrate solo en esos apartados** (por su número):
+
+{{DEFECTOS}}
+
+## Reglas
+
+- **Aditivo y quirúrgico.** Solo devuelves los apartados que enriqueces, por su `numero` fijo (5.1,
+  10.2, …). No renumeras ni reordenas nada.
+- **Cero invención.** Todo lo que añadas debe estar en las transcripciones, con su `evidencia`
+  (reunión+minuto). Si no hay fuente, no lo añadas.
+- **Necesidad, no solución. NO nombres herramientas.** Sigue siendo un DERS: describe lo que el
+  cliente **quiere** y su **proceso actual**, nunca el «cómo» técnico. Al desarrollar la situación o
+  los requerimientos, **NO nombres herramientas ni soluciones de Zoho** (nada de «mediante Zoho
+  LeadChain», «con la herramienta de email marketing de Zoho», «se integrará LeadChain»…). Expresa la
+  necesidad de negocio (p.ej. «capturar automáticamente los leads de los formularios de publicidad» en
+  vez de «integrar Zoho LeadChain»). El nombre del mecanismo Zoho va en el Análisis de viabilidad
+  (DERCAS), no aquí.
+- Usa `[CLIENTE]` en lugar del nombre suelto.
+
+## Salida (SOLO este JSON)
+
+```json
+{
+  "enriquecidos": [
+    { "numero": "5.2",
+      "situacion": "situación con el proceso desarrollado (fases, estados, transiciones, porqué)",
+      "requerimientos_funcionales": ["punto que faltaba", "..."],
+      "evidencia": [ { "reunion": "m01", "minuto": "MM:SS" } ] }
+  ],
+  "_changelog": [ { "numero": "5.2", "cambio": "qué se desarrolló", "origen": "m01 12:30" } ]
+}
+```

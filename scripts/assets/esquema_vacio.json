@@ -1,0 +1,43 @@
+{
+  "cliente": "",
+  "documento": {
+    "version": "",
+    "autor": "",
+    "fecha": "",
+    "comentario": ""
+  },
+  "especificaciones": [],
+  "objetivos_cliente": {
+    "herramientas": [],
+    "puntos": []
+  },
+  "solucion_buscada": {
+    "descripcion": "",
+    "lineas_trabajo": []
+  },
+  "requerimientos": [
+    {
+      "id": "",
+      "titulo": "",
+      "situacion": "",
+      "requerimientos_funcionales": [],
+      "analisis_viabilidad": null,
+      "criterios_aceptacion": null,
+      "adjuntos": [],
+      "evidencia": [
+        { "reunion": "", "minuto": "" }
+      ],
+      "confianza": ""
+    }
+  ],
+  "fuera_de_alcance": [
+    {
+      "titulo": "",
+      "descripcion": "",
+      "tratamiento": "",
+      "evidencia": [
+        { "reunion": "", "minuto": "" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "puntuacion": 55,
+  "defectos": [
+    { "regla": "clasificacion", "item": "wf-blueprint-op", "from": "5.2", "severidad": "alta",
+      "detalle": "El blueprint de Oportunidades está en workflows; debe ir a manual_todo." },
+    { "regla": "invencion", "item": "fld-nps", "from": "5.3", "severidad": "media",
+      "detalle": "Campo NPS no aparece en el analisis_viabilidad del requerimiento 5.3." },
+    { "regla": "trazabilidad", "item": "role-x", "from": "", "severidad": "baja",
+      "detalle": "El rol no lleva 'from' a ningún requerimiento." }
+  ],
+  "resumen": "Revisar primero la clasificación del blueprint (alta) y el campo NPS inventado."
+}

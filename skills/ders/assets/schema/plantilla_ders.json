@@ -1,0 +1,99 @@
+{
+  "_plantilla": {
+    "version": "2.0",
+    "indice_referencia": "Plantilla-DERS-DERCAS-CRM-2026",
+    "nota": "Arbol de secciones FIJO de la plantilla oficial 2026 (DERS+DERCAS-CRM). El codigo (ders.py::_merge_ders) recorre 'secciones', rellena Situacion+Requerimientos donde el LLM aporto (por id_canon) y deja placeholder en el resto; Viabilidad+Criterios quedan null (DERCAS). La numeracion es FIJA (no se renumera). Los textos son DATOS editables aqui; no se regeneran con el LLM."
+  },
+
+  "control_documentos": {
+    "tablas": ["Versiones", "Revisiones", "Aprobaciones"]
+  },
+
+  "documento_boilerplate": {
+    "objetivo_documento": "El propósito de este Documento de Especificaciones y Requerimientos de Software (DERS) / Documento de Especificaciones, Requerimientos y Criterios de Aceptación de Software (DERCAS) es describir las adecuaciones que se efectuarán como requerimientos en la implementación de Zoho CRM para [CLIENTE] por parte del implantador especializado SagitaZ.\n\nPara comprender la necesidad del DERS y DERCAS es necesario entender los siguientes conceptos:\n- Especificaciones: características técnicas y aplicaciones de software necesarias para la realización del proyecto.\n- Requerimientos del cliente: requerimientos funcionales (necesidades comunicadas por el cliente) y requerimientos no funcionales (restricciones a tener en cuenta para crear la solución).\n- Análisis de viabilidad: funcionamiento propuesto de la solución a entregar y su justificación.\n- Criterios de aceptación: métodos de verificación del cumplimiento del requerimiento.\n\nEn el DERCAS, a partir de cada requerimiento documentado se mostrará, al menos, un modo de comprobar que dicho requerimiento se cumple.",
+    "nota_final": "Cualquier otro trabajo o implementación no detallada en este documento no estará incluido.\n\nLas ampliaciones que se quieran realizar se deberán cotizar en un proyecto aparte que incluirá un nuevo documento de estudio.",
+    "estado_documento": "Los requerimientos y especificaciones mostrados en este documento deben ser aprobados por parte del cliente, para iniciar el proceso de análisis de viabilidad y criterios de aceptación de los mismos.\n\nAl firmar de conformidad, usted acepta que cualquier trabajo no especificado en este documento no está incluido en el alcance del proyecto.\n\nFecha: _______________________\nFirmado: _____________________"
+  },
+
+  "especificaciones_plantilla": {
+    "definicion": "Se entiende por especificaciones las condiciones de trabajo y/o recursos que el cliente pone a disposición de SagitaZ con carácter previo al inicio del desarrollo del proyecto. A continuación se detallan las especificaciones vigentes al momento de redacción de este documento:",
+    "items": [
+      "Licencias: Se contratarán las licencias [PENDIENTE: licencias contratadas] de Zoho estipuladas en el contrato.",
+      "Ancho de banda disponible: Actualmente [CLIENTE] dispone de un ancho de banda contratada y no se plantea aumentarlo.",
+      "Sistema operativo: la solución deberá ser compatible con Windows, Linux y macOS.",
+      "Movilidad: la solución deberá funcionar en dispositivos móviles y tablets con sistema operativo Android e iOS.",
+      "Gestión del sistema: la solución deberá ser manejable y sostenible por el equipo actual de [CLIENTE], sin requerir nuevas incorporaciones de personal."
+    ]
+  },
+
+  "lineas_trabajo_estandar": [
+    "Toma de requerimientos y documentación",
+    "Configuración de la herramienta",
+    "Migración de datos",
+    "Formación a nivel usuario y administrador"
+  ],
+
+  "secciones": [
+    { "numero": "5", "titulo": "Requerimientos Alcances CRM", "tipo": "grupo", "hijos": [
+      { "id_canon": "gestion_lead",          "numero": "5.1", "titulo": "Canales de entrada, cualificación y gestión del posible cliente", "tipo": "nucleo" },
+      { "id_canon": "proceso_oportunidades", "numero": "5.2", "titulo": "Proceso de Oportunidades", "tipo": "nucleo" },
+      { "id_canon": "clientes",              "numero": "5.3", "titulo": "Clientes", "tipo": "nucleo" }
+    ] },
+
+    { "numero": "6", "titulo": "Requerimientos de Comunicación, Interfaz y Automatización", "tipo": "grupo", "hijos": [
+      { "id_canon": "canales_comunicacion", "numero": "6.1", "titulo": "Canales de Comunicación", "tipo": "nucleo" },
+      { "id_canon": "personalizacion",       "numero": "6.2", "titulo": "Personalización", "tipo": "nucleo" },
+      { "id_canon": "automatizacion",        "numero": "6.3", "titulo": "Automatización y administración de procesos", "tipo": "nucleo" }
+    ] },
+
+    { "numero": "7", "titulo": "Requerimientos de Integración e Inteligencia de Datos", "tipo": "grupo", "hijos": [
+      { "id_canon": "admin_datos",        "numero": "7.1", "titulo": "Administración de datos", "tipo": "nucleo" },
+      { "id_canon": "centro_experiencia", "numero": "7.2", "titulo": "Centro de experiencia", "tipo": "opcional" },
+      { "id_canon": "marketplace",        "numero": "7.3", "titulo": "Marketplace (integraciones)", "tipo": "nucleo" },
+      { "id_canon": "zia",                "numero": "7.4", "titulo": "ZIA", "tipo": "opcional" }
+    ] },
+
+    { "numero": "8", "titulo": "Requerimientos de ATC", "tipo": "grupo", "hijos": [
+      { "id_canon": "atc_casos", "numero": "8.1", "titulo": "Casos y soluciones", "tipo": "opcional" }
+    ] },
+
+    { "numero": "9", "titulo": "Requerimientos de Procesos personalizados", "tipo": "grupo", "hijos": [
+      { "id_canon": "procesos_personalizados", "numero": "9.1", "titulo": "Descripción de los procesos personalizados", "tipo": "opcional" }
+    ] },
+
+    { "numero": "10", "titulo": "Requerimientos de la Organización", "tipo": "grupo", "hijos": [
+      { "id_canon": "config_empresa",  "numero": "10.1", "titulo": "Configuración de la empresa", "tipo": "nucleo" },
+      { "id_canon": "roles_seguridad", "numero": "10.2", "titulo": "Roles y Perfiles de la organización y control de Seguridad", "tipo": "nucleo" }
+    ] },
+
+    { "id_canon": "informes", "numero": "11", "titulo": "Informes", "tipo": "nucleo" },
+
+    { "numero": "12", "titulo": "Formación", "tipo": "formacion",
+      "intro": "Se requerirá formación en las herramientas a implantar en esta fase del proyecto, tanto a nivel usuario como a nivel administrador.",
+      "subapartados": [
+        { "numero": "12.1.1", "titulo": "Nivel usuario",
+          "contenidos": [
+            "Configuración personal en el sistema (perfil, seguridad, configuración de correo, tema/firma)",
+            "Módulos representados en el sistema",
+            "Creación y edición de registros",
+            "Información de los registros en los módulos",
+            "Acciones únicas en CRM",
+            "Gestión de datos (vistas personalizadas, filtros de correos, acciones comunes)",
+            "Proceso de Posibles clientes",
+            "Proceso de Oportunidades"
+          ] },
+        { "numero": "12.1.2", "titulo": "Nivel administrador",
+          "contenidos": [
+            "Módulo de informes (creación, programaciones)",
+            "Módulo de análisis (paneles de información)",
+            "Usuarios y control (roles y perfiles / ajustes de uso compartido)",
+            "Canales de entrada al sistema",
+            "Personalización de CRM",
+            "Automatizaciones",
+            "Administración de datos"
+          ] }
+      ] },
+
+    { "numero": "13", "titulo": "Fuera del alcance", "tipo": "fuera_alcance" }
+  ]
+}

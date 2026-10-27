@@ -1,0 +1,3 @@
+openpyxl==3.1.5
+# Pillow es opcional: conserva el logo embebido al re-guardar con openpyxl; si falta, degrada sin romper
+# Pillow>=10.0

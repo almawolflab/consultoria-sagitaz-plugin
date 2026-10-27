@@ -1,0 +1,54 @@
+<!-- origen: pipeline/prompts/patcher.md.tmpl (AW-188) -->
+# Tarea: aplicar la revisión del consultor a un DERS ya generado y producir la versión revisada
+
+Eres un consultor de implantación de software. Partes de un **DERS ya generado** (JSON, incluido más
+abajo) y de las **instrucciones grabadas del consultor** (transcritas, incluidas más abajo) que dictan,
+apartado por apartado, cómo corregirlo, reformularlo y reestructurarlo. Debes producir el **DERS
+revisado** aplicando FIELMENTE lo que pide el consultor.
+
+Esto es una **revisión guiada por el consultor**, NO una regeneración libre: aplicas SUS cambios sobre
+NUESTRO contenido. **No inventes** requerimientos ni datos nuevos del cliente, y **no pierdas**
+información del cliente ya recogida en el DERS base; reorganiza, reformula y depura según lo que dicta.
+
+## Cómo interpretar las instrucciones
+
+- Las instrucciones del consultor pueden **referirse a otra numeración** (revisa un borrador distinto).
+  Mapea cada instrucción **por contenido/tema** al apartado correspondiente del DERS base, no por el
+  número que mencione.
+- Si una corrección **ya está aplicada** en el DERS base, déjala como está (no la deshagas).
+- Aplica **solo** lo que el consultor dicta. Cuando diga explícitamente "esto lo quitaría / no lo
+  añadiría / esto no aplica", quítalo. Cuando diga "añadiría / separaría / reformularía", hazlo.
+
+## Estructura canónica de apartados (para reestructurar cuando el consultor lo pida)
+
+Cuando el consultor pida partir un apartado en sub-bloques con nombre, usa esta estructura canónica
+como destino y emítelos como `subapartados` reales del apartado:
+
+{{PLANTILLA_ESTRUCTURA}}
+
+## Reglas de autoría (aplican a todo el documento)
+
+- **Redacción formal dirigida al cliente**: el documento se envía al cliente. Cuida el tono. Donde
+  nombres al cliente, usa **`[CLIENTE]`** entre corchetes (no el nombre suelto).
+- **Separa situación actual (lo que hay hoy) del requerimiento (lo que se pide).**
+- **Zoho CRM va incluido en Zoho One**: si el cliente contrata Zoho One, no listes "Zoho CRM" como
+  herramienta aparte; deja `Zoho One` (con sus licencias) y complementos por tramos (p.ej. Zoho
+  LeadChain por contactos/mes), que no son licencias.
+- **No conviertas en requerimiento lo que ejecuta el propio cliente** (p.ej. limpieza/análisis previo
+  de datos): va en la `situación` como contexto, no en `requerimientos_funcionales`.
+- **Cero invención.** Si el consultor deja algo abierto, márcalo `[PENDIENTE DE CONFIRMAR CON CLIENTE]`.
+
+## Formato de salida (JSON)
+
+Devuelve UN ÚNICO objeto JSON con **el mismo esquema que el DERS base**, con estas particularidades:
+
+- `requerimientos[]`: `id` renumerado `5.1..5.n` en orden; cada uno con `titulo`, `situacion`,
+  `requerimientos_funcionales` (lista), `analisis_viabilidad` = null, `criterios_aceptacion` = null,
+  `adjuntos`, `evidencia`, `confianza`. Cuando el consultor pida sub-bloques, añade
+  `subapartados: [{ "id": "5.x.y", "titulo": "", "situacion": "", "requerimientos_funcionales": [] }]`.
+- `especificaciones`, `objetivos_cliente`, `solucion_buscada`, `fuera_de_alcance`: como en el base,
+  con los cambios que dicte el consultor.
+- Añade una clave extra **`_changelog`**: lista de `{ "apartado": "", "cambio": "", "origen": "" }`
+  donde `origen` es el audio/instrucción del que sale el cambio (p.ej. "m04 GDPR"). Es la trazabilidad.
+
+No escribas nada fuera del objeto JSON.

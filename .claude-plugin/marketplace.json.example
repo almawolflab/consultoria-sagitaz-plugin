@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "plugins": [
+    {
+      "name": "consultoria-sagitaz",
+      "displayName": "Consultoría Sagitaz (DERS→Implementación)",
+      "description": "Pipeline de consultoría: DERS, DERCAS, IR, matriz CRM, plan e implementación REST v8 (solo sandbox).",
+      "version": "0.1.0",
+      "author": { "name": "Sagitaz / AIOps" },
+      "keywords": ["sagitaz", "zoho", "crm", "ders", "dercas", "consultoria"],
+      "source": {
+        "type": "git",
+        "url": "https://gitlab.192.168.0.29.nip.io/aiops/<repo-marketplace>.git",
+        "directory": "plugin-claude"
+      },
+      "autoUpdate": false
+    }
+  ]
+}

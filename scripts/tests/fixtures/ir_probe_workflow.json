@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "cliente": "Probe Workflow",
+    "org_id": "693026068",
+    "prefix": "T_",
+    "note": "IR-probe autocontenido para ejercitar el aplicador de workflows (field_update) en vivo: 2 campos + 1 regla."
+  },
+  "fields": [
+    { "id": "fld-wf-estado", "from": "probe",
+      "match": {"module": "Leads", "api_name": "T_WF_Estado"},
+      "payload": {"module": "Leads", "field_label": "T_ WF Estado", "data_type": "picklist",
+        "pick_list_values": [ {"display_value": "A", "actual_value": "A"},
+                              {"display_value": "B", "actual_value": "B"} ]} },
+    { "id": "fld-wf-flag", "from": "probe",
+      "match": {"module": "Leads", "api_name": "T_WF_Flag"},
+      "payload": {"module": "Leads", "field_label": "T_ WF Flag", "data_type": "text", "length": 60} }
+  ],
+  "workflows": [
+    { "id": "wf-probe", "from": "probe", "depends_on": ["fld-wf-estado", "fld-wf-flag"],
+      "match": {"module": "Leads", "name": "T_ WF Probe"},
+      "payload": {
+        "name": "T_ WF Probe",
+        "module": "Leads",
+        "trigger": {"on": "create_or_edit"},
+        "criteria": {"field": "T_WF_Estado", "operator": "equal", "value": "A"},
+        "actions": [ {"type": "field_update", "field": "T_WF_Flag", "value": "marcado"} ]
+      } }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "cliente": "Jaque Legal",
+    "org_id": "693026068",
+    "note": "IR de prueba del create-path: UN campo nuevo para demostrar escritura idempotente por código."
+  },
+  "fields": [
+    { "id": "fld-probe", "from": "probe",
+      "match": {"module": "Leads", "api_name": "JLT_Applicator_Probe"},
+      "payload": {"module": "Leads", "field_label": "JLT Applicator Probe",
+                  "data_type": "text", "length": 120}
+    }
+  ]
+}

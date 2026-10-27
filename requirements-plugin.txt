@@ -1,0 +1,18 @@
+# requirements-plugin.txt — dependencias del plugin consultoria-sagitaz
+# Solo puro Python / cross-platform; se instalan en el venv del consultor (macOS/Windows).
+#
+# NOTA: imageio-ffmpeg (transcripción de audio) NO está aquí: pertenece al worker
+# de Zoho Catalyst (catalyst/appsail-worker/requirements.txt). El plugin no transcribe;
+# el audio ya viene procesado desde el backend.
+#
+# NOTA: google-generativeai/genai NO está aquí: Claude razona, no Gemini.
+# No hay API key de Gemini en el cliente (docs/32 §3, decisión #7).
+
+openpyxl==3.1.5
+et-xmlfile==2.0.0
+
+# Opcional — conserva el logo embebido del xls al re-guardar con openpyxl.
+# Sin Pillow el plugin funciona igual (el xls se genera, el logo puede perderse).
+# El wheel de Pillow es por-plataforma; no es parte del camino obligatorio.
+# Descomentar solo si el consultor quiere el logo en la plantilla generada:
+# Pillow>=10,<12
