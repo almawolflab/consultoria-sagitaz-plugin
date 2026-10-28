@@ -23,12 +23,40 @@ _ENV = (("client_id", "ZCRM_CLIENT_ID"), ("client_secret", "ZCRM_CLIENT_SECRET")
         ("accounts_domain", "ZCRM_ACCOUNTS_DOMAIN"))
 
 
-def load_creds(path=DEFAULT_CREDS):
+def plugin_data_oauth_path():
+    """Ruta del token en $CLAUDE_PLUGIN_DATA, o None si la env no está definida."""
+    data = os.environ.get("CLAUDE_PLUGIN_DATA", "").strip()
+    return os.path.join(data, "zoho_crm_oauth.json") if data else None
+
+
+def resolve_oauth_path(for_write=False):
+    """Ruta única del token OAuth, compartida por crm/authorize/doctor.
+
+    - Escritura (authorize_crm): $CLAUDE_PLUGIN_DATA si está definida, si no DEFAULT_CREDS.
+    - Lectura (crm/doctor): prefiere $CLAUDE_PLUGIN_DATA si el fichero EXISTE ahí; si no,
+      cae a DEFAULT_CREDS (compat con setups manuales/monorepo). Si ninguno existe,
+      devuelve la ruta preferida para el mensaje de error.
+    """
+    primary = plugin_data_oauth_path()
+    fallback = DEFAULT_CREDS  # scripts/zoho_crm_oauth.json
+    if for_write:
+        return primary or fallback
+    if primary and os.path.exists(primary):
+        return primary
+    if os.path.exists(fallback):
+        return fallback
+    return primary or fallback
+
+
+def load_creds(path=None):
     """Carga las credenciales de CRM.
 
     Prioridad: **env vars `ZCRM_*`** (worker de Catalyst, sin fichero) → luego el JSON local
     `zoho_crm_oauth.json` si existe. `accounts_domain` cae a accounts.zoho.com por defecto.
+    Si `path` es None, resuelve la ruta con resolve_oauth_path(for_write=False).
     """
+    if path is None:
+        path = resolve_oauth_path(for_write=False)
     c = {}
     if os.path.exists(path):
         with open(path) as f:
@@ -47,7 +75,8 @@ def load_creds(path=DEFAULT_CREDS):
 class CrmClient:
     """Cliente ligero para `{api_domain}/crm/v8{path}` con refresh-on-401."""
 
-    def __init__(self, creds=None, creds_path=DEFAULT_CREDS, timeout=60):
+    def __init__(self, creds=None, creds_path=None, timeout=60):
+        # creds_path=None → load_creds resuelve con resolve_oauth_path (AW-190).
         self.c = creds or load_creds(creds_path)
         self.api = self.c["api_domain"].rstrip("/")
         self.accounts = self.c["accounts_domain"].rstrip("/")

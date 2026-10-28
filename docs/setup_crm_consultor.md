@@ -61,9 +61,10 @@ compartido, o entrega en persona):
 ### Prerequisitos
 
 - Tener acceso a la organización sandbox "Prueba Salto" de Zoho CRM con **tu propia cuenta**.
-- Haber recibido `crm_connected_app.json` del owner y colocarlo en la **raíz del repositorio**:
+- Haber recibido `crm_connected_app.json` del owner y colocarlo en **`$CLAUDE_PLUGIN_DATA/`**
+  (o, como fallback, en `scripts/` del plugin):
   ```
-  transcriber/crm_connected_app.json   ← este fichero, nunca commiteado
+  $CLAUDE_PLUGIN_DATA/crm_connected_app.json   ← este fichero, nunca commiteado
   ```
   Alternativamente, exporta las variables de entorno:
   ```bash
@@ -108,8 +109,13 @@ compartido, o entrega en persona):
 
 | Fichero | Ubicación | ¿Commiteado? |
 |---------|-----------|--------------|
-| `zoho_crm_oauth.json` | raíz del repo (o `--out`) | **NO** — está en `.gitignore` |
-| `crm_connected_app.json` | raíz del repo | **NO** — está en `.gitignore` |
+| `zoho_crm_oauth.json` | `$CLAUDE_PLUGIN_DATA/zoho_crm_oauth.json` (persistente entre actualizaciones del plugin; fallback: `scripts/zoho_crm_oauth.json`) | **NO** — está en `.gitignore` |
+| `crm_connected_app.json` | `$CLAUDE_PLUGIN_DATA/crm_connected_app.json` o `scripts/crm_connected_app.json` | **NO** — está en `.gitignore` |
+
+> **`$CLAUDE_PLUGIN_DATA`** es el directorio de datos persistentes que gestiona Claude Code.
+> El token se guarda ahí (fuera del directorio del plugin en caché) y **sobrevive a
+> actualizaciones/reinstalaciones del plugin**. Si no está definida esta variable,
+> el token cae en `scripts/zoho_crm_oauth.json` (compat con setups manuales/monorepo).
 
 > **NUNCA hagas `git add zoho_crm_oauth.json` ni `git add crm_connected_app.json`.**
 > Si accidentalmente lo commiteas, **revoca el token en Zoho inmediatamente** (ver sección
@@ -118,7 +124,14 @@ compartido, o entrega en persona):
 ### Verificar que funciona
 
 ```bash
-python3 -m pipeline.parametrizacion.apply --ir pipeline/tests/fixtures/ir_jaque_r1r3.json --dry-run
+/opt/homebrew/bin/python3.11 scripts/doctor.py
+```
+
+Si los checks [D] y [E] aparecen en verde, el token está correctamente configurado.
+Alternativamente, puedes hacer un dry-run de aplicación:
+
+```bash
+/opt/homebrew/bin/python3.11 -m parametrizacion.apply_cli --ir scripts/tests/fixtures/ir_jaque_r1r3.json --dry-run
 ```
 
 Si no hay errores de credenciales, el token está correctamente configurado.
@@ -159,7 +172,7 @@ Si el `client_secret` se ve comprometido:
 
 | Mensaje | Causa | Solución |
 |---------|-------|----------|
-| `crm_connected_app.json not found` | El fichero no está en la raíz | Colócalo en la raíz del repo o exporta `ZCRM_APP_*` |
+| `crm_connected_app.json not found` | El fichero no está en `$CLAUDE_PLUGIN_DATA` ni en `scripts/` | Colócalo en `$CLAUDE_PLUGIN_DATA` (o `scripts/`) o exporta `ZCRM_APP_*` |
 | `ERROR: Org type is 'production'` | Iniciaste sesión con una cuenta de producción | Usa tu cuenta del sandbox "Prueba Salto" |
 | `ERROR: No authorization code received (timeout?)` | Cerraste el navegador o tardaste >120 s | Vuelve a ejecutar y completa el flujo rápidamente |
 | `error=access_denied` | Cancelaste el consentimiento | Ejecuta de nuevo y acepta los permisos |

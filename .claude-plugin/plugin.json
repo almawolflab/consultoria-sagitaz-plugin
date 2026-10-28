@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "consultoria-sagitaz",
   "displayName": "Consultoría Sagitaz (DERS→Implementación)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pipeline de consultoría como skills + scripts validados: DERS, DERCAS, IR, matriz CRM, plan e implementación REST v8 (solo sandbox).",
   "author": { "name": "Sagitaz / AIOps" },
   "keywords": ["sagitaz", "zoho", "crm", "ders", "dercas", "consultoria"],
@@ -21,8 +21,8 @@
     "python_bin": {
       "type": "string",
       "title": "Ruta a Python 3",
-      "description": "Ruta al intérprete Python 3.11+ (ej. python3 en macOS, py -3 en Windows).",
-      "default": "python3"
+      "description": "Ruta al intérprete Python 3.11+ (ej. /opt/homebrew/bin/python3.11 en macOS, py -3 en Windows).",
+      "default": "/opt/homebrew/bin/python3.11"
     }
   }
 }

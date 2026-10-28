@@ -23,11 +23,14 @@ def test_manifest_valido():
     # sensitive en transcripciones_team_token
     assert uc["transcripciones_team_token"].get("sensitive") is True, \
         "transcripciones_team_token debe tener sensitive: true"
-    # python_bin tiene default
-    assert uc["python_bin"].get("default") == "python3", \
-        "python_bin default debe ser 'python3'"
-    # version presente
-    assert data.get("version") == "0.1.0", f"version incorrecto: {data.get('version')!r}"
+    # python_bin tiene default (ruta absoluta a python3.11, no "python3" suelto — AW-190 AC-7)
+    python_bin_default = uc["python_bin"].get("default", "")
+    assert python_bin_default != "python3", \
+        "python_bin default no debe ser 'python3' suelto (AW-190: usar ruta absoluta)"
+    assert "python3.11" in python_bin_default or "py -3" in python_bin_default, \
+        f"python_bin default debe contener 'python3.11' o 'py -3'; tiene: {python_bin_default!r}"
+    # version presente (0.1.1 tras el bump de AW-190 AC-9)
+    assert data.get("version") == "0.1.1", f"version incorrecto: {data.get('version')!r}"
     # displayName presente
     assert "displayName" in data, "falta displayName"
     # $schema presente

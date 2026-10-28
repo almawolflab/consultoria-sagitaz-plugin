@@ -26,7 +26,7 @@ DERS → DERCAS → IR → Matriz CRM → Plan → Implementación (solo sandbox
    |-------|---------------|
    | `transcripciones_endpoint` | URL base del endpoint `/transcripciones` (la da el owner) |
    | `transcripciones_team_token` | Token de equipo (lo reparte el owner; se guarda de forma segura) |
-   | `python_bin` | `python3` en macOS · `py -3` en Windows |
+   | `python_bin` | `/opt/homebrew/bin/python3.11` en macOS · `py -3` en Windows |
 
    > El `transcripciones_team_token` se almacena en el almacén seguro de la plataforma,
    > **nunca** en `settings.json` ni en el repo.
@@ -52,8 +52,10 @@ python3 scripts/bootstrap.py --force
 ### 4. Verificar el entorno con doctor.py
 
 ```bash
-python3 scripts/doctor.py
+/opt/homebrew/bin/python3.11 scripts/doctor.py
 ```
+
+> **No necesitas pasar flags**: doctor autodescubre el venv de bootstrap y la ruta del token OAuth.
 
 Checks que realiza:
 
@@ -62,11 +64,12 @@ Checks que realiza:
 | [A] Python >= 3.11 | Versión del intérprete en el venv | Sí |
 | [B] openpyxl importa | Dependencia de la matriz CRM | Sí |
 | [C] Sin imageio-ffmpeg | No debe estar en el venv del plugin | Sí |
-| [D] Fichero OAuth existe | `zoho_crm_oauth.json` del consultor | Sí |
-| [E] api_domain no productivo | `sandbox.zohoapis.com`, nunca `www.zohoapis.com` | Sí |
+| [D] Fichero OAuth existe | `zoho_crm_oauth.json` del consultor | Solo para `/implementar` |
+| [E] api_domain no productivo | `sandbox.zohoapis.com`, nunca `www.zohoapis.com` | Solo para `/implementar` |
 | [F] Endpoint alcanzable | `TRANSCRIPCIONES_ENDPOINT` responde | Aviso |
 
 Devuelve **exit 0** solo si todos los checks obligatorios pasan.
+Las skills `/matriz`, `/plan` y `/dercas` funcionan sin OAuth ([D]/[E] son solo para `/implementar`).
 
 ### 5. Autorización Zoho (una vez por consultor)
 

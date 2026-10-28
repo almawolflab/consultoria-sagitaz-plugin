@@ -39,6 +39,10 @@ from typing import Optional
 HERE = Path(__file__).resolve().parent
 PLUGIN_ROOT = HERE.parent
 
+# Asegurar que scripts/ está en sys.path para importaciones dentro del plugin
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+
 # ---------------------------------------------------------------------------
 # Importar la regla de dominio desde crm.py (no duplicar el literal)
 # ---------------------------------------------------------------------------
@@ -249,6 +253,64 @@ def check_endpoint_reachable(endpoint: str) -> tuple[bool, str]:
 
 
 # ---------------------------------------------------------------------------
+# Resolución de rutas (autodescubrimiento)
+# ---------------------------------------------------------------------------
+
+def resolve_venv_dir(venv_dir_arg: Optional[str]) -> Optional[Path]:
+    """Resuelve el directorio del venv para doctor.
+
+    Prioridad:
+    1. Argumento explícito (--venv-dir).
+    2. Env var DOCTOR_VENV_DIR.
+    3. bootstrap.plugin_data_dir() / "venv" (si existe).
+    4. None → python del sistema (comportamiento anterior, no rompe CI).
+    """
+    # 1. Argumento explícito
+    if venv_dir_arg:
+        return Path(venv_dir_arg)
+
+    # 2. Env var
+    env_val = os.environ.get("DOCTOR_VENV_DIR", "").strip()
+    if env_val:
+        return Path(env_val)
+
+    # 3. Autodescubrimiento vía bootstrap
+    try:
+        import bootstrap
+        data_dir = bootstrap.plugin_data_dir()
+        candidate = data_dir / "venv"
+        if candidate.exists():
+            return candidate
+    except ImportError:
+        pass
+
+    # 4. Python del sistema
+    return None
+
+
+def resolve_oauth_path(oauth_path_arg: Optional[str]) -> Path:
+    """Resuelve la ruta del fichero OAuth para doctor.
+
+    Prioridad:
+    1. Argumento explícito (--oauth-path).
+    2. Env var DOCTOR_OAUTH_PATH.
+    3. crm.resolve_oauth_path(for_write=False).
+    """
+    if oauth_path_arg:
+        return Path(oauth_path_arg)
+
+    env_val = os.environ.get("DOCTOR_OAUTH_PATH", "").strip()
+    if env_val:
+        return Path(env_val)
+
+    try:
+        from parametrizacion.crm import resolve_oauth_path as crm_resolve
+        return Path(crm_resolve(for_write=False))
+    except ImportError:
+        return HERE / "zoho_crm_oauth.json"
+
+
+# ---------------------------------------------------------------------------
 # Función principal
 # ---------------------------------------------------------------------------
 
@@ -264,8 +326,10 @@ def run_doctor(venv_dir: Path | None, oauth_path: Path, skip_network: bool) -> i
         ("A", "Python >= 3.11",       lambda: check_python_version(venv_dir)),
         ("B", "openpyxl importa",      lambda: check_openpyxl(venv_dir)),
         ("C", "Sin imageio-ffmpeg",    lambda: check_no_imageio(venv_dir)),
-        ("D", "Fichero OAuth existe",  lambda: check_oauth_exists(oauth_path)),
-        ("E", "api_domain no productivo", lambda: check_api_domain(oauth_path)),
+        ("D", "Fichero OAuth existe (solo necesario para /implementar)",
+              lambda: check_oauth_exists(oauth_path)),
+        ("E", "api_domain no productivo (solo necesario para /implementar)",
+              lambda: check_api_domain(oauth_path)),
     ]
 
     print("=" * 60)
@@ -319,26 +383,11 @@ def main():
                         help="Ruta al fichero OAuth (por defecto: $DOCTOR_OAUTH_PATH o DEFAULT_CREDS de crm.py).")
     args = parser.parse_args()
 
-    # Resolver venv_dir
-    venv_dir_str = args.venv_dir or os.environ.get("DOCTOR_VENV_DIR", "").strip()
-    venv_dir = Path(venv_dir_str) if venv_dir_str else None
+    # Resolver venv_dir usando la función centralizada
+    venv_dir = resolve_venv_dir(venv_dir_arg=args.venv_dir)
 
-    # Resolver oauth_path
-    if args.oauth_path:
-        oauth_path = Path(args.oauth_path)
-    elif os.environ.get("DOCTOR_OAUTH_PATH", "").strip():
-        oauth_path = Path(os.environ["DOCTOR_OAUTH_PATH"].strip())
-    else:
-        # Usar DEFAULT_CREDS de crm.py
-        sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
-        try:
-            from parametrizacion.crm import DEFAULT_CREDS
-            oauth_path = Path(DEFAULT_CREDS)
-        except ImportError:
-            oauth_path = PLUGIN_ROOT / "scripts" / "zoho_crm_oauth.json"
-        finally:
-            if str(PLUGIN_ROOT / "scripts") in sys.path:
-                sys.path.remove(str(PLUGIN_ROOT / "scripts"))
+    # Resolver oauth_path usando la función centralizada
+    oauth_path = resolve_oauth_path(oauth_path_arg=args.oauth_path)
 
     skip_network = os.environ.get("DOCTOR_SKIP_NETWORK", "").strip() == "1"
 

@@ -32,9 +32,30 @@ from pathlib import Path
 # Constants
 # ---------------------------------------------------------------------------
 
-HERE = Path(__file__).resolve().parents[2]  # repo root
-DEFAULT_OUT = str(HERE / "zoho_crm_oauth.json")
-DEFAULT_APP_CREDS = str(HERE / "crm_connected_app.json")
+_SCRIPTS = Path(__file__).resolve().parent  # scripts/ directory
+import sys as _sys
+if str(_SCRIPTS) not in _sys.path:
+    _sys.path.insert(0, str(_SCRIPTS))
+
+from parametrizacion.crm import resolve_oauth_path as _resolve_oauth_path
+
+
+def resolve_app_creds_path() -> str:
+    """Ruta al fichero crm_connected_app.json.
+
+    Prioridad: $CLAUDE_PLUGIN_DATA si el fichero existe ahí; si no, scripts/.
+    """
+    import os
+    data = os.environ.get("CLAUDE_PLUGIN_DATA", "").strip()
+    if data:
+        plugin_data_path = str(Path(data) / "crm_connected_app.json")
+        if Path(plugin_data_path).exists():
+            return plugin_data_path
+    return str(_SCRIPTS / "crm_connected_app.json")
+
+
+DEFAULT_OUT = _resolve_oauth_path(for_write=True)
+DEFAULT_APP_CREDS = resolve_app_creds_path()
 
 # Scopes required by the applicator (AW-187 / applicator.py / apply.py)
 SCOPES = ",".join([
@@ -211,8 +232,10 @@ def write_creds(creds: dict, out_path: str) -> None:
     """Atomically write zoho_crm_oauth.json with 0600 permissions.
 
     Never writes the in-memory _access_token key.
+    Creates parent directories if they don't exist.
     """
     safe = {k: v for k, v in creds.items() if not k.startswith("_")}
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     tmp = out_path + ".tmp"
     with open(tmp, "w") as f:
         json.dump(safe, f, indent=2)
