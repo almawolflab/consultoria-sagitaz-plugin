@@ -21,15 +21,17 @@ def _run_bootstrap(env: dict) -> subprocess.CompletedProcess:
 
 
 def test_bootstrap_crea_venv(tmp_path):
-    """bootstrap.py crea el venv en CLAUDE_PLUGIN_DATA/venv e instala requirements-plugin.txt.
+    """bootstrap.py crea el venv en data_dir()/venv e instala requirements-plugin.txt.
 
+    AW-191: el directorio de datos es fijo y determinista (CONSULTORIA_SAGITAZ_DATA /
+    XDG_DATA_HOME / ~/.local/share), ya no depende de $CLAUDE_PLUGIN_DATA.
     La segunda ejecución (idempotencia) también debe terminar con exit 0.
     El test instala openpyxl de PyPI: puede tardar ~30s en la primera ejecución.
     """
     data_dir = tmp_path / "plugin_data"
     data_dir.mkdir()
     env = {
-        "CLAUDE_PLUGIN_DATA": str(data_dir),
+        "CONSULTORIA_SAGITAZ_DATA": str(data_dir),
         "CLAUDE_PLUGIN_ROOT": str(PLUGIN_ROOT),
     }
 

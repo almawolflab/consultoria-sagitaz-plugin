@@ -98,28 +98,33 @@ class TestSetupCrmDoc:
 # AC-9: plugin.json y marketplace.json con versión 0.1.1
 # ---------------------------------------------------------------------------
 
+def _plugin_version():
+    data = json.loads((PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text())
+    return data["version"]
+
+
+def _marketplace_version():
+    data = json.loads((PLUGIN_ROOT / ".claude-plugin" / "marketplace.json").read_text())
+    sagitaz_plugin = next(
+        (p for p in data.get("plugins", []) if p.get("name") == "consultoria-sagitaz"), None
+    )
+    assert sagitaz_plugin is not None, "marketplace.json debe tener el plugin consultoria-sagitaz"
+    return sagitaz_plugin["version"]
+
+
 class TestVersionBump:
-    """plugin.json y marketplace.json tienen versión 0.1.1."""
+    """plugin.json y marketplace.json declaran la misma versión, bumpeada por AW-191."""
 
-    def test_plugin_json_version_0_1_1(self):
-        """plugin.json tiene versión 0.1.1."""
-        plugin_json = (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text()
-        data = json.loads(plugin_json)
-        assert data["version"] == "0.1.1", (
-            f"plugin.json debe tener versión '0.1.1', tiene '{data.get('version')}'"
+    def test_plugin_marketplace_version_consistente(self):
+        """plugin.json y marketplace.json coinciden en versión (invariante robusto a bumps)."""
+        assert _plugin_version() == _marketplace_version(), (
+            f"versión plugin.json ({_plugin_version()}) != marketplace.json ({_marketplace_version()})"
         )
 
-    def test_marketplace_json_version_0_1_1(self):
-        """marketplace.json tiene versión 0.1.1 en el plugin consultoria-sagitaz."""
-        marketplace_json = (PLUGIN_ROOT / ".claude-plugin" / "marketplace.json").read_text()
-        data = json.loads(marketplace_json)
-        plugins = data.get("plugins", [])
-        sagitaz_plugin = next(
-            (p for p in plugins if p.get("name") == "consultoria-sagitaz"), None
-        )
-        assert sagitaz_plugin is not None, "marketplace.json debe tener el plugin consultoria-sagitaz"
-        assert sagitaz_plugin["version"] == "0.1.1", (
-            f"marketplace.json debe tener versión '0.1.1', tiene '{sagitaz_plugin.get('version')}'"
+    def test_version_bumpeada(self):
+        """La versión está por encima de las publicadas previamente (0.1.0/0.1.1 — AW-191 = 0.1.2)."""
+        assert _plugin_version() not in ("0.1.0", "0.1.1"), (
+            f"la versión debe estar bumpeada por AW-191, es '{_plugin_version()}'"
         )
 
     def test_plugin_json_python_bin_default_es_ruta_absoluta(self):

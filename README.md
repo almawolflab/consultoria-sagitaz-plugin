@@ -40,7 +40,8 @@ También puedes ejecutarlo a mano desde la raíz del plugin:
 python3 scripts/bootstrap.py
 ```
 
-Esto crea un venv en `$CLAUDE_PLUGIN_DATA/venv` e instala las dependencias del plugin
+Esto crea un venv en un directorio fijo determinista (`~/.local/share/consultoria-sagitaz/venv`
+salvo override con `CONSULTORIA_SAGITAZ_DATA` o `XDG_DATA_HOME`) e instala las dependencias del plugin
 (`openpyxl`, `et-xmlfile`). Es **idempotente**: re-ejecutar no reinstala si ya está OK.
 
 Para recrear el venv desde cero:
@@ -64,16 +65,17 @@ Checks que realiza:
 | [A] Python >= 3.11 | Versión del intérprete en el venv | Sí |
 | [B] openpyxl importa | Dependencia de la matriz CRM | Sí |
 | [C] Sin imageio-ffmpeg | No debe estar en el venv del plugin | Sí |
-| [D] Fichero OAuth existe | `zoho_crm_oauth.json` del consultor | Solo para `/implementar` |
-| [E] api_domain no productivo | `sandbox.zohoapis.com`, nunca `www.zohoapis.com` | Solo para `/implementar` |
+| [D] Fichero OAuth existe | `zoho_crm_oauth.json` del consultor | Solo para `/implementar` (aviso sin `--require-oauth`) |
+| [E] api_domain sandbox | `sandbox.zohoapis.<dc>`, nunca producción | Solo para `/implementar` (aviso sin `--require-oauth`) |
 | [F] Endpoint alcanzable | `TRANSCRIPCIONES_ENDPOINT` responde | Aviso |
 
-Devuelve **exit 0** solo si todos los checks obligatorios pasan.
-Las skills `/matriz`, `/plan` y `/dercas` funcionan sin OAuth ([D]/[E] son solo para `/implementar`).
+Devuelve **exit 0** si [A][B][C] pasan (sin importar [D]/[E], que son avisos por defecto).
+Para `/implementar`, usa `doctor --require-oauth` para verificar también [D]/[E].
+Las skills `/matriz`, `/plan` y `/dercas` funcionan sin OAuth ([D]/[E] no son obligatorios para Fase 1).
 
 ### 5. Autorización Zoho (una vez por consultor)
 
-Lanza el flujo OAuth de la connected app (AW-186) para generar tu fichero de credenciales local:
+Lanza el flujo OAuth de la connected app de Zoho que te da el owner para generar tu fichero de credenciales local:
 
 ```bash
 python3 scripts/authorize_crm.py
@@ -185,5 +187,5 @@ Con esto, todos los consultores del Team verán el plugin en `/plugin` y podrán
 |-----|-----------|-----------|
 | `transcripciones_team_token` | Almacén seguro de Claude Code (userConfig sensitive) | **NO** |
 | `zoho_crm_oauth.json` del consultor | Local del consultor (gitignored) | **NO** |
-| `CLAUDE_PLUGIN_DATA/venv` | Local del consultor (fuera del plugin) | **NO** |
+| `~/.local/share/consultoria-sagitaz/venv` | Local del consultor (dir fijo, fuera del plugin) | **NO** |
 | `plugin.json`, skills, scripts | Repo del plugin | Sí (sin secretos) |

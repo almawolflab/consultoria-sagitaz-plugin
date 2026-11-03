@@ -213,17 +213,20 @@ class TestDoctorLabelsImplementar:
             f"El texto '{TEXTO}' debe aparecer en la salida de run_doctor para [E]"
         )
 
-    def test_fallo_D_sigue_dando_exit_1(self):
-        """[D] falla → exit != 0 (no cambió el comportamiento)."""
+    def test_D_ausente_es_aviso_salvo_require_oauth(self):
+        """AW-191: [D] ausente es AVISO por defecto (exit 0, Fase 1 no necesita OAuth);
+        solo con --require-oauth vuelve a ser obligatorio (exit != 0)."""
         _add_scripts_to_path()
         import doctor
 
         import tempfile
         with tempfile.TemporaryDirectory() as tmpdir:
             non_existent = Path(tmpdir) / "no_existe.json"
-            result = doctor.run_doctor(
-                venv_dir=None,
-                oauth_path=non_existent,
-                skip_network=True,
+            rc_default = doctor.run_doctor(
+                venv_dir=None, oauth_path=non_existent, skip_network=True,
             )
-        assert result != 0
+            rc_require = doctor.run_doctor(
+                venv_dir=None, oauth_path=non_existent, skip_network=True, require_oauth=True,
+            )
+        assert rc_default == 0, "[D] ausente debe ser aviso (exit 0) sin --require-oauth"
+        assert rc_require != 0, "[D] ausente debe fallar (exit 1) con --require-oauth"

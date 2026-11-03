@@ -3,22 +3,27 @@
 
 Verifica los requisitos mínimos para que el pipeline funcione correctamente:
 
-Checks OBLIGATORIOS (exit != 0 si alguno falla):
+Checks siempre OBLIGATORIOS (exit != 0 si alguno falla):
   [A] Python >= 3.11 en el venv (o sistema si no hay venv).
   [B] openpyxl importa sin error en el venv.
   [C] imageio-ffmpeg NO está instalado en el venv.
+
+Checks OAuth (avisos por defecto; obligatorios con --require-oauth o DOCTOR_REQUIRE_OAUTH=1):
   [D] Existe el fichero OAuth del consultor (zoho_crm_oauth.json).
-  [E] api_domain NO apunta a producción (www.zohoapis.com) — reutiliza la regla de crm.py.
+  [E] api_domain NO apunta a producción — reutiliza la guarda allowlist de crm.py (AW-191).
+  → Para Fase 1 (dercas/matriz/plan) basta con [A][B][C].
+  → Para /implementar, usa --require-oauth para asegurar que [D]/[E] también pasan.
 
 Checks OPCIONALES/AVISOS (no cambian el exit code):
   [F] Alcanzabilidad de TRANSCRIPCIONES_ENDPOINT (requiere red).
 
 Uso:
-    python3 scripts/doctor.py [--venv-dir <path>] [--oauth-path <path>]
+    python3 scripts/doctor.py [--venv-dir <path>] [--oauth-path <path>] [--require-oauth]
 
 Env vars para tests (no requieren argumentos):
     DOCTOR_VENV_DIR      Directorio del venv a verificar (vacío = usar python del sistema).
     DOCTOR_OAUTH_PATH    Ruta al fichero OAuth del consultor.
+    DOCTOR_REQUIRE_OAUTH Si es "1", activa el mismo gate que --require-oauth.
     DOCTOR_SKIP_NETWORK  Si es "1", omite el check de red (F).
     TRANSCRIPCIONES_ENDPOINT  URL a verificar (check F).
 
@@ -60,8 +65,8 @@ def _is_production_domain(api_domain: str) -> bool:
         from parametrizacion.crm import CrmClient
     except ImportError:
         # Si crm.py no está disponible (entorno de test aislado), usamos la regla inline
-        # solo como fallback de seguridad, pero el check canónico es el de crm.py.
-        return "www.zohoapis.com" in api_domain
+        # solo como fallback de seguridad (allowlist), pero el check canónico es el de crm.py.
+        return "sandbox.zohoapis." not in api_domain
     finally:
         if str(PLUGIN_ROOT / "scripts") in sys.path:
             sys.path.remove(str(PLUGIN_ROOT / "scripts"))
@@ -314,18 +319,31 @@ def resolve_oauth_path(oauth_path_arg: Optional[str]) -> Path:
 # Función principal
 # ---------------------------------------------------------------------------
 
-def run_doctor(venv_dir: Path | None, oauth_path: Path, skip_network: bool) -> int:
+def run_doctor(
+    venv_dir: Path | None,
+    oauth_path: Path,
+    skip_network: bool,
+    require_oauth: bool = False,
+) -> int:
     """Ejecuta todos los checks y muestra un resumen.
+
+    [A][B][C] son siempre obligatorios.
+    [D][E] son avisos por defecto; se vuelven obligatorios con require_oauth=True
+    (flag --require-oauth o env DOCTOR_REQUIRE_OAUTH=1).
 
     Retorna 0 si todos los obligatorios pasan, 1 si alguno falla.
     """
     endpoint = os.environ.get("TRANSCRIPCIONES_ENDPOINT", "").strip()
 
-    # --- Checks obligatorios ---
-    mandatory = [
-        ("A", "Python >= 3.11",       lambda: check_python_version(venv_dir)),
-        ("B", "openpyxl importa",      lambda: check_openpyxl(venv_dir)),
-        ("C", "Sin imageio-ffmpeg",    lambda: check_no_imageio(venv_dir)),
+    # --- Checks siempre obligatorios ---
+    always_mandatory = [
+        ("A", "Python >= 3.11",    lambda: check_python_version(venv_dir)),
+        ("B", "openpyxl importa",  lambda: check_openpyxl(venv_dir)),
+        ("C", "Sin imageio-ffmpeg", lambda: check_no_imageio(venv_dir)),
+    ]
+
+    # --- Checks OAuth (obligatorios solo con --require-oauth) ---
+    oauth_checks = [
         ("D", "Fichero OAuth existe (solo necesario para /implementar)",
               lambda: check_oauth_exists(oauth_path)),
         ("E", "api_domain no productivo (solo necesario para /implementar)",
@@ -339,12 +357,11 @@ def run_doctor(venv_dir: Path | None, oauth_path: Path, skip_network: bool) -> i
     print("Checks obligatorios:")
 
     failures = []
-    for code, label, fn in mandatory:
+    for code, label, fn in always_mandatory:
         try:
             ok, msg = fn()
         except Exception as e:
             ok, msg = False, f"Excepcion inesperada: {e}"
-        status = "OK" if ok else "FAIL"
         icon = "✓" if ok else "✗"
         print(f"  [{code}] {icon} {label}: {msg}")
         if not ok:
@@ -352,8 +369,40 @@ def run_doctor(venv_dir: Path | None, oauth_path: Path, skip_network: bool) -> i
 
     print()
 
-    # --- Checks opcionales ---
-    print("Avisos (opcionales):")
+    # --- Checks OAuth ---
+    if require_oauth:
+        print("Checks OAuth (--require-oauth activo):")
+        for code, label, fn in oauth_checks:
+            try:
+                ok, msg = fn()
+            except Exception as e:
+                ok, msg = False, f"Excepcion inesperada: {e}"
+            icon = "✓" if ok else "✗"
+            print(f"  [{code}] {icon} {label}: {msg}")
+            if not ok:
+                failures.append((code, label, msg))
+    else:
+        print("Avisos OAuth (usa --require-oauth para hacerlos obligatorios):")
+        # [E] es un FALLO DURO si existe un token que apunta a producción, aunque no se pase
+        # --require-oauth: un token de producción nunca es un simple aviso (seguridad AW-191).
+        # [D] (no hay token) sí es un aviso: la Fase 1 (dercas/matriz/plan) no necesita OAuth.
+        token_exists = oauth_path.exists()
+        for code, label, fn in oauth_checks:
+            try:
+                ok, msg = fn()
+            except Exception as e:
+                ok, msg = False, f"Excepcion inesperada: {e}"
+            if code == "E" and token_exists and not ok:
+                print(f"  [{code}] ✗ {label}: {msg}")
+                failures.append((code, label, msg))
+            else:
+                icon = "!" if not ok else "✓"
+                print(f"  [{code}] {icon} {label}: {msg}")
+
+    print()
+
+    # --- Checks opcionales de red ---
+    print("Avisos de red (opcionales):")
     if skip_network:
         print("  [F] — Check de red omitido (DOCTOR_SKIP_NETWORK=1)")
     else:
@@ -381,6 +430,15 @@ def main():
                         help="Directorio del venv (por defecto: $DOCTOR_VENV_DIR o inferido de bootstrap).")
     parser.add_argument("--oauth-path", default=None,
                         help="Ruta al fichero OAuth (por defecto: $DOCTOR_OAUTH_PATH o DEFAULT_CREDS de crm.py).")
+    parser.add_argument(
+        "--require-oauth",
+        action="store_true",
+        default=False,
+        help=(
+            "Hace que [D] y [E] (fichero OAuth y api_domain) sean obligatorios (exit 1 si fallan). "
+            "Por defecto son solo avisos. También se activa con DOCTOR_REQUIRE_OAUTH=1."
+        ),
+    )
     args = parser.parse_args()
 
     # Resolver venv_dir usando la función centralizada
@@ -391,7 +449,17 @@ def main():
 
     skip_network = os.environ.get("DOCTOR_SKIP_NETWORK", "").strip() == "1"
 
-    sys.exit(run_doctor(venv_dir=venv_dir, oauth_path=oauth_path, skip_network=skip_network))
+    # --require-oauth también se activa vía env
+    require_oauth = args.require_oauth or (
+        os.environ.get("DOCTOR_REQUIRE_OAUTH", "").strip() == "1"
+    )
+
+    sys.exit(run_doctor(
+        venv_dir=venv_dir,
+        oauth_path=oauth_path,
+        skip_network=skip_network,
+        require_oauth=require_oauth,
+    ))
 
 
 if __name__ == "__main__":

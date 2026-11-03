@@ -184,6 +184,6 @@ Si el `client_secret` se ve comprometido:
 
 | Scope | Para qué |
 |-------|----------|
-| `ZohoCRM.modules.ALL` | Leer/escribir campos en módulos del CRM (AW-187 applicator) |
+| `ZohoCRM.modules.ALL` | Leer/escribir campos en módulos del CRM (el aplicador del plugin) |
 | `ZohoCRM.settings.ALL` | Leer configuración de módulos, layouts, campos |
 | `ZohoCRM.org.READ` | Verificar binding de la org (tipo sandbox, zgid) |

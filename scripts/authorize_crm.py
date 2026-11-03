@@ -174,11 +174,13 @@ def assert_sandbox(org_info: dict, api_domain: str) -> None:
     """Hard guard: exit(1) if org is not sandbox or domain is production.
 
     Hardens what gen_crm_refresh_token.py:99-105 only warns about.
+    Uses allowlist (sandbox.zohoapis.) instead of denylist (AW-191).
     """
-    if "www.zohoapis.com" in api_domain:
+    if "sandbox.zohoapis." not in api_domain:
         print(
-            f"ERROR: api_domain '{api_domain}' points to production (www.zohoapis.com). "
-            "This script only works with sandbox orgs.",
+            f"ERROR: api_domain '{api_domain}' no es sandbox. "
+            "Solo se permite sandbox.zohoapis.<dc> (p.ej. sandbox.zohoapis.eu, "
+            "sandbox.zohoapis.com). Producción bloqueada por seguridad (AW-191).",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -201,11 +203,12 @@ def verify_org(api_domain: str, access_token: str) -> dict:
     Exits with code 1 if org is not a sandbox or domain is production.
     Returns the org info dict on success.
     """
-    # Domain check: reject www.zohoapis.com before even making the request
-    if "www.zohoapis.com" in api_domain:
+    # Domain check (allowlist): reject any non-sandbox domain before making the request (AW-191)
+    if "sandbox.zohoapis." not in api_domain:
         print(
-            f"ERROR: api_domain '{api_domain}' points to production (www.zohoapis.com). "
-            "This script only works with sandbox orgs.",
+            f"ERROR: api_domain '{api_domain}' no es sandbox. "
+            "Solo se permite sandbox.zohoapis.<dc> (p.ej. sandbox.zohoapis.eu, "
+            "sandbox.zohoapis.com). Producción bloqueada por seguridad (AW-191).",
             file=sys.stderr,
         )
         sys.exit(1)

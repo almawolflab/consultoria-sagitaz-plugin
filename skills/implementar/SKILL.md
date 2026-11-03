@@ -25,53 +25,57 @@ Aplica `ir.json` al CRM sandbox del consultor mediante REST v8.
 | Recurso | Descripción |
 |---------|-------------|
 | `~/Sagitaz/clientes/<cliente>/ir.json` | Salida validada de la skill `dercas` |
-| `zoho_crm_oauth.json` | Credenciales del consultor (connected app de AW-186) |
-| `--apply` + confirmación `"si"` | Requerido para escritura real |
+| `zoho_crm_oauth.json` | Credenciales del consultor (la connected app de Zoho que te da el owner) |
+| Confirmación en el chat | Requerida para escritura real (Claude pregunta antes de aplicar) |
 
 ---
 
 ## Flujo
 
-### Paso 1 — Dry-run (modo por defecto, no escribe)
+### Paso 1 — Dry-run (no escribe nada)
 
-Claude ejecuta:
+Claude ejecuta el dry-run (sin `--apply`):
 
 ```bash
 python scripts/parametrizacion/apply_cli.py \
   --ir ~/Sagitaz/clientes/<cliente>/ir.json
 ```
 
-Sin `--apply`, el script muestra el **plan** (creaciones por sección: campos, roles,
+El script muestra el **plan** (creaciones por sección: campos, roles,
 perfiles, workflows) pero **no escribe nada** en el CRM. Idempotente: items cuyo `match`
 ya existe → `skip`.
 
-Claude resume el plan al consultor:
+Claude resume el plan al consultor en el chat:
 - Nº de creaciones por sección (`fields`, `roles`, `profiles`, `workflows`).
 - Items que serían `skip` (ya existen).
 - Cualquier advertencia (dependencias, tope de campos por módulo).
 
-### Paso 2 — Confirmación explícita (obligatoria para escribir)
+### Paso 2 — Confirmación en el chat (obligatoria para escribir)
 
-Claude **no ejecuta la escritura** hasta que el consultor confirme explícitamente.
+Claude **pregunta en el chat** al consultor si desea aplicar los cambios.
+Claude **no ejecuta la escritura** hasta recibir confirmación explícita en el chat.
 
-El script pide confirmación interactiva:
+Ejemplo de pregunta que Claude formula:
+> "El dry-run planifica N creaciones (X campos, Y roles…). ¿Confirmas que quieres aplicarlos al CRM sandbox?"
 
-```
-¿Aplicar los N cambios al CRM sandbox? [escribe "si" para confirmar]:
-```
+Claude espera la respuesta del consultor antes de continuar.
 
-Solo continúa si el consultor responde `si` (exacto, sin mayúsculas, sin variantes).
-Cualquier otra respuesta cancela con rc=1 sin escribir.
+> **Nota:** `apply_cli.py` incluye un `input()` interactivo para uso manual desde la
+> terminal (CLI directo). Cuando se usa desde esta skill, la confirmación se gestiona
+> en el chat y se pasa el flag `--yes` al script para saltarse el `input()`.
 
-### Paso 3 — Aplicación (solo tras confirmación)
+### Paso 3 — Aplicación (solo tras confirmación en el chat)
+
+Tras confirmación del consultor, Claude ejecuta:
 
 ```bash
 python scripts/parametrizacion/apply_cli.py \
   --ir ~/Sagitaz/clientes/<cliente>/ir.json \
-  --apply
+  --apply --yes
 ```
 
-El script llama `applicator.apply(ir, client, do_write=True)` sobre `CrmClient`
+El flag `--yes` evita que el script pida `input()` interactivo (que se colgaría en la
+Bash tool de Claude Code). El script llama `applicator.apply(ir, client, do_write=True)` sobre `CrmClient`
 (credenciales de `zoho_crm_oauth.json` del consultor). Flujo:
 1. `build_discovery` — estado actual del CRM.
 2. `plan` — lista de acciones (create/skip).
@@ -104,8 +108,8 @@ Claude no tiene ninguna otra vía para escribir en el CRM.
 ## Guardas de seguridad
 
 1. **Dry-run por defecto:** sin `--apply`, el script nunca escribe.
-2. **Confirmación explícita:** con `--apply`, el script pide `"si"` interactivo
-   (patrón `apply_cli.py`; `--yes` solo para automatización CI aprobada).
+2. **Confirmación en el chat:** Claude pregunta en el chat antes de ejecutar `--apply --yes`.
+   Para uso manual en terminal, `apply_cli.py` conserva `input()` interactivo (no usar desde skill).
 3. **Sandbox-only (guarda dura en `crm.py`):**
    Si el `api_domain` del fichero de credenciales apunta al dominio de producción,
    `CrmClient` lanza `RuntimeError` antes de cualquier llamada a la API.
@@ -130,7 +134,7 @@ skills/implementar/
 ```
 
 Esta skill reutiliza `scripts/parametrizacion/apply_cli.py` sin modificaciones
-(AW-187). No se crea ningún otro aplicador.
+(el aplicador del plugin). No se crea ningún otro aplicador.
 
 ---
 

@@ -82,10 +82,11 @@ class CrmClient:
         self.accounts = self.c["accounts_domain"].rstrip("/")
         self.timeout = timeout
         self._at = None
-        if "www.zohoapis.com" in self.api:
+        if "sandbox.zohoapis." not in self.api:
             raise RuntimeError(
-                "api_domain apunta a producción (www.zohoapis.com); usa el sandbox "
-                "(sandbox.zohoapis.com). Prohibido por seguridad (spike §10.4).")
+                f"api_domain '{self.api}' no es un dominio sandbox válido. "
+                "Solo se permite sandbox.zohoapis.<dc> (p.ej. sandbox.zohoapis.eu, "
+                "sandbox.zohoapis.com). Producción bloqueada por seguridad (AW-191).")
 
     # --- OAuth ---
     def _refresh(self):

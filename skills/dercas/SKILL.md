@@ -13,7 +13,7 @@ Convierte `DERS.json` + criterios dictados por el consultor en `DERCAS.json` + `
 
 > **Principio rector (§4.1):** Claude aporta el criterio en 2 fases (DERCAS + IR);
 > el script hace la validación determinista del IR resultante.
-> **No se ejecuta `mapper.py`** ni se llama a Gemini.
+> **No se ejecuta `mapper.py`** ni modelos externos; el razonamiento lo hace Claude.
 
 ---
 
@@ -92,8 +92,7 @@ Sale con rc≠0 y detalle si el IR no es válido.
 | `DERCAS.json` | `~/Sagitaz/clientes/<cliente>/DERCAS.json` |
 | `ir.json` | `~/Sagitaz/clientes/<cliente>/ir.json` ← entrada de `matriz`, `plan`, `implementar` |
 
-> Render `.docx` del DERCAS: **pendiente/opcional en v1** (igual que en `ders`; `generar_docx.py`
-> no está portado al plugin).
+> Render `.docx` del DERCAS: **pendiente/opcional en v1** (el generador de DOCX del plugin no está portado aún).
 
 ---
 
@@ -104,8 +103,8 @@ skills/dercas/
 ├── SKILL.md                            (este fichero)
 ├── assets/
 │   └── prompts/
-│       ├── patcher_dercas.md.tmpl      (copiado de pipeline/prompts/, AW-188)
-│       └── mapper_ir.md.tmpl           (copiado de pipeline/prompts/, AW-188)
+│       ├── patcher_dercas.md.tmpl      (instrucciones fase DERCAS: viabilidad + criterios)
+│       └── mapper_ir.md.tmpl           (instrucciones fase IR declarativo)
 └── scripts/
     └── validar_ir.py                   (validación IR via parametrizacion.ir.validate)
 ```

@@ -13,7 +13,7 @@ Revisa `ir.json` y produce `Plan.md` + `revision.json`/`revision.md`.
 
 > **Principio rector (§4.1):** El **juicio de fidelidad** lo da Claude con `revisor_ir.md.tmpl`;
 > las **comprobaciones mecánicas** (validación de esquema, colisiones, deps) las hace el script
-> determinista `revision_ir.py`. Sin llamadas a Gemini.
+> determinista `revision_ir.py`. Sin modelos externos; el razonamiento lo hace Claude.
 
 ---
 
@@ -100,8 +100,8 @@ skills/plan/
 ├── SKILL.md                              (este fichero)
 ├── assets/
 │   └── prompts/
-│       ├── revisor_ir.md.tmpl            (copiado de pipeline/prompts/, AW-188)
-│       └── revisor_correcciones.md.tmpl  (copiado de pipeline/prompts/, AW-188)
+│       ├── revisor_ir.md.tmpl            (rúbrica de fidelidad IR↔DERCAS)
+│       └── revisor_correcciones.md.tmpl  (instrucciones de corrección post-revisión)
 └── scripts/
     └── revision_ir.py                    (checks deterministas + render summary)
 ```

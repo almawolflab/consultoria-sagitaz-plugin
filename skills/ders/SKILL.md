@@ -13,7 +13,7 @@ Convierte transcripciones de reuniones en un `DERS.json` al estándar Sagitaz.
 
 > **Principio rector (§4.1):** Claude aporta el criterio (extracción y redacción);
 > los scripts hacen lo determinista (fetch de transcripciones y validación de esquema).
-> **No se invocan orquestadores de pipeline** ni motores externos como Gemini.
+> **No se invocan orquestadores de pipeline** ni modelos externos; el razonamiento lo hace Claude.
 
 ---
 
@@ -22,7 +22,7 @@ Convierte transcripciones de reuniones en un `DERS.json` al estándar Sagitaz.
 | Recurso | Descripción |
 |---------|-------------|
 | `<cliente>` | Nombre del cliente (slug, p.ej. `tufisio`) |
-| Endpoint `/transcripciones` | Servicio AW-185 — no necesitas acceso directo |
+| Endpoint `/transcripciones` | El servicio de transcripciones del servidor — no necesitas acceso directo |
 | `assets/schema/plantilla_ders.json` | Árbol de secciones FIJO (numeración no se renumera) |
 | `assets/schema/esquema_vacio.json` | Esqueleto JSON vacío para rellenar |
 
@@ -60,7 +60,7 @@ Claude sigue los 4 prompts del pipeline como instrucciones, en orden:
 La estructura destino es la de `assets/schema/plantilla_ders.json` (árbol de secciones FIJO).
 El consultor **revisa y edita conversando** hasta cerrar el DERS.
 
-> Render `.docx` (DERS.docx): pendiente/opcional en v1 (`generar_docx.py` de AW-187).
+> Render `.docx` (DERS.docx): pendiente/opcional en v1 (el generador de DOCX del plugin no está portado aún).
 
 ### Paso 3 — Validar el DERS (script determinista)
 
@@ -104,15 +104,15 @@ skills/ders/
 ├── SKILL.md                            (este fichero)
 ├── assets/
 │   ├── prompts/
-│   │   ├── extractor.md.tmpl           (copiado de pipeline/prompts/, AW-188)
-│   │   ├── enriquecedor.md.tmpl        (copiado de pipeline/prompts/, AW-188)
-│   │   ├── juez.md.tmpl                (copiado de pipeline/prompts/, AW-188)
-│   │   └── patcher.md.tmpl             (copiado de pipeline/prompts/, AW-188)
+│   │   ├── extractor.md.tmpl           (prompt de extracción de requerimientos)
+│   │   ├── enriquecedor.md.tmpl        (prompt de enriquecimiento con contexto CRM)
+│   │   ├── juez.md.tmpl                (prompt de auto-auditoría con rúbrica Sagitaz)
+│   │   └── patcher.md.tmpl             (prompt de correcciones post-juez)
 │   └── schema/
 │       ├── plantilla_ders.json         (árbol de secciones FIJO — fuente de verdad)
 │       └── esquema_vacio.json          (esqueleto JSON vacío para Claude)
 └── scripts/
-    ├── fetch_transcripciones.py        (stdlib urllib; sin Gemini, sin dependencias externas)
+    ├── fetch_transcripciones.py        (stdlib urllib; sin dependencias externas)
     └── validar_ders.py                 (validación estructural determinista)
 ```
 

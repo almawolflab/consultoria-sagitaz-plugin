@@ -5,8 +5,9 @@ Uso:
     python3 scripts/bootstrap.py [--force]
 
 Env vars reconocidas:
-    CLAUDE_PLUGIN_DATA   Directorio de datos persistentes del plugin (lo gestiona Claude Code).
-                         Si no está definida, se usa ~/.local/share/consultoria-sagitaz.
+    CONSULTORIA_SAGITAZ_DATA  Override explícito del directorio de datos (máxima prioridad).
+    XDG_DATA_HOME             Directorio XDG base; el plugin usa <XDG_DATA_HOME>/consultoria-sagitaz.
+    (Fallback: ~/.local/share/consultoria-sagitaz si ninguna de las anteriores está definida.)
     CLAUDE_PLUGIN_ROOT   Raíz del plugin (se usa para localizar requirements-plugin.txt).
                          Si no está definida, se infiere a partir de la ubicación de este script.
 
@@ -29,17 +30,31 @@ from pathlib import Path
 # Resolución de rutas
 # ---------------------------------------------------------------------------
 
+def data_dir() -> Path:
+    """Devuelve el directorio de datos persistentes del plugin (determinista en cualquier contexto).
+
+    Orden de preferencia:
+    1. $CONSULTORIA_SAGITAZ_DATA si está definida → esa ruta exacta.
+    2. $XDG_DATA_HOME si está definida → $XDG_DATA_HOME/consultoria-sagitaz.
+    3. Fallback → ~/.local/share/consultoria-sagitaz.
+
+    NO usa $CLAUDE_PLUGIN_DATA (solo disponible en procesos de hooks, no en Bash de skills).
+    """
+    v = os.environ.get("CONSULTORIA_SAGITAZ_DATA", "").strip()
+    if v:
+        return Path(v)
+    v = os.environ.get("XDG_DATA_HOME", "").strip()
+    if v:
+        return Path(v) / "consultoria-sagitaz"
+    return Path.home() / ".local" / "share" / "consultoria-sagitaz"
+
+
 def plugin_data_dir() -> Path:
     """Devuelve el directorio de datos persistentes del plugin.
 
-    Orden de preferencia:
-    1. $CLAUDE_PLUGIN_DATA (definida por Claude Code al ejecutar el plugin).
-    2. ~/.local/share/consultoria-sagitaz (fallback para ejecución manual/CI).
+    Delegado a data_dir() para compatibilidad con código existente.
     """
-    env_val = os.environ.get("CLAUDE_PLUGIN_DATA", "").strip()
-    if env_val:
-        return Path(env_val)
-    return Path.home() / ".local" / "share" / "consultoria-sagitaz"
+    return data_dir()
 
 
 def plugin_root_dir() -> Path:
