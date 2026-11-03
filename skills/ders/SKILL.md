@@ -55,7 +55,6 @@ Claude sigue los 4 prompts del pipeline como instrucciones, en orden:
 3. **`assets/prompts/juez.md.tmpl`** — auto-auditoría con rúbrica Sagitaz (fidelidad,
    completitud, no-invención, formato).
 4. **`assets/prompts/patcher.md.tmpl`** — aplica las correcciones del juez.
-   Usa `{{PREFIX}}` del cliente para nombrar campos personalizados.
 
 La estructura destino es la de `assets/schema/plantilla_ders.json` (árbol de secciones FIJO).
 El consultor **revisa y edita conversando** hasta cerrar el DERS.

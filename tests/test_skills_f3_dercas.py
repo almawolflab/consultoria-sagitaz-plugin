@@ -102,3 +102,115 @@ def test_validar_ir_ir_probe_workflow_pasa():
         import pytest; pytest.skip("Fixture ir_probe_workflow.json no disponible")
     rc = mod.main([str(fixture)])
     assert rc == 0, "ir_probe_workflow.json debe ser válido"
+
+
+# ---- AW-192: guard {{PREFIX}} en validar_ir.py ----
+
+def test_validar_ir_rechaza_placeholder_en_api_name(tmp_path, capsys):
+    """Un IR con {{PREFIX}}Tipo en api_name debe ser rechazado (placeholder sin sustituir)."""
+    mod = _get_validar_ir()
+    ir_bad = {
+        "fields": [
+            {"id": "fld-tipo", "match": {"module": "Leads", "api_name": "{{PREFIX}}Tipo"},
+             "payload": {"module": "Leads", "field_label": "{{PREFIX}} Tipo", "data_type": "picklist",
+                         "pick_list_values": [{"display_value": "A", "actual_value": "A"}]}},
+        ]
+    }
+    ir_file = tmp_path / "ir_placeholder.json"
+    ir_file.write_text(json.dumps(ir_bad))
+    rc = mod.main([str(ir_file)])
+    assert rc != 0, "IR con placeholder {{PREFIX}} debe ser rechazado"
+    captured = capsys.readouterr()
+    assert "placeholder" in (captured.out + captured.err).lower() or \
+           "PREFIX" in (captured.out + captured.err), \
+        "El mensaje de error debe mencionar 'placeholder' o 'PREFIX'"
+
+
+def test_validar_ir_rechaza_placeholder_en_nombre_role(tmp_path, capsys):
+    """Un IR con {{PREFIX}} en name de un role debe ser rechazado."""
+    mod = _get_validar_ir()
+    ir_bad = {
+        "roles": [
+            {"id": "role-ceo", "match": {"name": "{{PREFIX}} CEO"},
+             "payload": {"name": "{{PREFIX}} CEO", "display_label": "{{PREFIX}} CEO"}},
+        ]
+    }
+    ir_file = tmp_path / "ir_placeholder_role.json"
+    ir_file.write_text(json.dumps(ir_bad))
+    rc = mod.main([str(ir_file)])
+    assert rc != 0, "IR con placeholder {{PREFIX}} en role.name debe ser rechazado"
+
+
+def test_validar_ir_rechaza_placeholder_en_workflow_fields(tmp_path):
+    """Un IR con {{PREFIX}} en criteria.field o actions[].field de un workflow debe ser rechazado
+    (AW-192: es justo donde la convención vieja ponía {{PREFIX}}Tipo/{{PREFIX}}Prioridad)."""
+    mod = _get_validar_ir()
+    # criteria.field con placeholder
+    ir_criteria = {
+        "workflows": [
+            {"id": "wf-prio", "match": {"module": "Leads", "name": "Asignar prioridad"},
+             "payload": {"module": "Leads", "name": "Asignar prioridad",
+                         "criteria": {"field": "{{PREFIX}}Tipo", "operator": "equal", "value": "Clinica"},
+                         "actions": [{"type": "field_update", "field": "Prioridad", "value": "Alta"}]}},
+        ]
+    }
+    f1 = tmp_path / "ir_wf_criteria.json"
+    f1.write_text(json.dumps(ir_criteria))
+    assert mod.main([str(f1)]) != 0, "placeholder en criteria.field debe rechazarse"
+    # actions[].field con placeholder
+    ir_action = {
+        "workflows": [
+            {"id": "wf-prio", "match": {"module": "Leads", "name": "Asignar prioridad"},
+             "payload": {"module": "Leads", "name": "Asignar prioridad",
+                         "criteria": {"field": "Tipo", "operator": "equal", "value": "Clinica"},
+                         "actions": [{"type": "field_update", "field": "{{PREFIX}}Prioridad", "value": "Alta"}]}},
+        ]
+    }
+    f2 = tmp_path / "ir_wf_action.json"
+    f2.write_text(json.dumps(ir_action))
+    assert mod.main([str(f2)]) != 0, "placeholder en actions[].field debe rechazarse"
+
+
+def test_validar_ir_acepta_nombres_planos(tmp_path):
+    """Un IR con nombres planos (sin {{PREFIX}}) debe pasar validación."""
+    mod = _get_validar_ir()
+    ir_ok = {
+        "fields": [
+            {"id": "fld-origen", "match": {"module": "Leads", "api_name": "Origen"},
+             "payload": {"module": "Leads", "field_label": "Origen", "data_type": "picklist",
+                         "pick_list_values": [{"display_value": "Meta Ads", "actual_value": "Meta Ads"}]}},
+        ],
+        "roles": [
+            {"id": "role-ceo", "match": {"name": "CEO"},
+             "payload": {"name": "CEO", "display_label": "CEO"}},
+        ]
+    }
+    ir_file = tmp_path / "ir_plano.json"
+    ir_file.write_text(json.dumps(ir_ok))
+    rc = mod.main([str(ir_file)])
+    assert rc == 0, "IR con nombres planos debe ser válido"
+
+
+# ---- AW-192: mapper_ir.md.tmpl y SKILL.md sin {{PREFIX}} ----
+
+def test_mapper_ir_no_tiene_prefix():
+    """mapper_ir.md.tmpl NO debe contener {{PREFIX}} (AW-192: nombres planos)."""
+    mapper = DERCAS_DIR / "assets" / "prompts" / "mapper_ir.md.tmpl"
+    text = mapper.read_text(encoding="utf-8")
+    assert "{{PREFIX}}" not in text, \
+        "mapper_ir.md.tmpl aún contiene {{PREFIX}} — debe usar nombres planos (AW-192)"
+
+
+def test_skill_md_dercas_no_tiene_prefix():
+    """SKILL.md de dercas NO debe mencionar {{PREFIX}}."""
+    text = (DERCAS_DIR / "SKILL.md").read_text(encoding="utf-8")
+    assert "{{PREFIX}}" not in text, \
+        "SKILL.md de dercas aún contiene {{PREFIX}} (AW-192)"
+
+
+def test_skill_md_ders_no_tiene_prefix():
+    """SKILL.md de ders NO debe mencionar {{PREFIX}} en instrucciones al consultor."""
+    ders_dir = SKILLS_DIR / "ders"
+    text = (ders_dir / "SKILL.md").read_text(encoding="utf-8")
+    assert "{{PREFIX}}" not in text, \
+        "SKILL.md de ders aún contiene {{PREFIX}} (AW-192)"

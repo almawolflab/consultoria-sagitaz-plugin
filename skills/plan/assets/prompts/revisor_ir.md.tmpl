@@ -25,7 +25,7 @@ requerimiento). El IR debe reflejar fielmente lo que el consultor decidió ahí,
 - **trazabilidad** — Cada item lleva `from` con un `numero` de requerimiento **que realmente lo respalda**.
   Marca `from` ausentes, vacíos o que no correspondan.
 - **idempotencia** — `match` bien formado (fields: `{module,api_name}`; roles/profiles: `{name}`;
-  workflows: `{module,name}`), **prefijo** aplicado, y sin **colisiones** (dos items con el mismo
+  workflows: `{module,name}`) y sin **colisiones** (dos items con el mismo
   `api_name` en el **mismo** módulo, o el mismo `name`). Distinto módulo NO es colisión.
 - **dependencias** — `depends_on` coherente: roles padre antes que hijos; campos antes que el workflow que
   los referencia. Marca dependencias a ids inexistentes o ausentes donde hagan falta.

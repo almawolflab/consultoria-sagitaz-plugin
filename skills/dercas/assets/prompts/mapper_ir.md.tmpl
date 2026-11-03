@@ -22,17 +22,17 @@ especifica algo con claridad, **no lo creas** — lo mandas a `manual_todo`.
    automatizaciones cuya acción sea **actualizar el valor de un campo** (`{"type":"field_update",...}`),
    porque es lo único que sabemos aplicar por API hoy. Las automatizaciones cuya acción sea **crear una
    tarea, enviar una alerta/correo o notificar** van a **`manual_todo`** (con su `spec`), NO a `workflows`.
-   El `criteria.field` y el `actions[].field` deben referenciar api_names con `{{PREFIX}}` que existan en la
+   El `criteria.field` y el `actions[].field` deben referenciar `api_name`s que existan en la
    sección `fields` (añade el `depends_on` al id del campo).
 4. **Trazabilidad**: cada item lleva `from` con el `numero` del requerimiento de origen (p. ej. "5.1").
 5. **Idempotencia**: cada item lleva `match` (clave por la que la herramienta detecta si ya existe):
-   - fields: `{"module":"<Modulo>","api_name":"<PREFIX><ApiName>"}`
-   - roles: `{"name":"<PREFIX> <Nombre>"}`  ·  profiles: `{"name":"<PREFIX> <Nombre>"}`
-   - workflows: `{"module":"<Modulo>","name":"<PREFIX> <Nombre>"}`
+   - fields: `{"module":"<Modulo>","api_name":"<ApiName>"}`
+   - roles: `{"name":"<Nombre>"}`  ·  profiles: `{"name":"<Nombre>"}`
+   - workflows: `{"module":"<Modulo>","name":"<Nombre>"}`
 6. **Orden por dependencias** (`depends_on`, lista de `id`): roles padre antes que hijos; los campos antes
    que el workflow que los referencia.
-7. **Prefijo obligatorio** `{{PREFIX}}` en TODO api_name y nombre custom (campos, roles, perfiles,
-   workflows) para no pisar la configuración estándar y poder identificar/limpiar lo creado.
+7. **Nombres planos** en api_name y nombres custom: usa el nombre tal cual (p.ej. `"Origen"`, `"CEO"`),
+   sin ningún prefijo. El CRM del cliente usará estos nombres directamente.
 8. Módulos estándar (Leads=Posibles clientes, Deals=Oportunidades, Contacts, Accounts) **no** se crean:
    se **reutilizan** por su api_name estándar en `match.module`.
 
@@ -43,29 +43,29 @@ especifica algo con claridad, **no lo creas** — lo mandas a `manual_todo`.
   "meta": { "cliente": "...", "notas": "..." },   // meta la completa el código; puedes dejarla mínima
   "fields": [
     { "id": "fld-origen", "from": "5.1",
-      "match": {"module": "Leads", "api_name": "{{PREFIX}}Origen"},
-      "payload": { "module": "Leads", "field_label": "{{PREFIX}} Origen", "data_type": "picklist",
+      "match": {"module": "Leads", "api_name": "Origen"},
+      "payload": { "module": "Leads", "field_label": "Origen", "data_type": "picklist",
         "pick_list_values": [ {"display_value":"Meta Ads","actual_value":"Meta Ads"} ] } }
   ],
   "roles": [
-    { "id": "role-ceo", "from": "5.3", "match": {"name": "{{PREFIX}} CEO"},
-      "payload": {"name": "{{PREFIX}} CEO", "display_label": "{{PREFIX}} CEO",
-                  "reporting_to": {"name": "<rol padre existente o {{PREFIX}} ...>"}} }
+    { "id": "role-ceo", "from": "5.3", "match": {"name": "CEO"},
+      "payload": {"name": "CEO", "display_label": "CEO",
+                  "reporting_to": {"name": "<rol padre existente>"}} }
   ],
   "profiles": [
-    { "id": "prof-comercial", "from": "5.3", "match": {"name": "{{PREFIX}} Comercial"},
-      "payload": {"clone_from": "Standard", "name": "{{PREFIX}} Comercial", "description": "..."} }
+    { "id": "prof-comercial", "from": "5.3", "match": {"name": "Comercial"},
+      "payload": {"clone_from": "Standard", "name": "Comercial", "description": "..."} }
   ],
   "workflows": [
     { "id": "wf-x", "from": "5.10", "depends_on": ["fld-prioridad"],
-      "match": {"module": "Leads", "name": "{{PREFIX}} Asignar prioridad"},
+      "match": {"module": "Leads", "name": "Asignar prioridad"},
       "payload": {
-        "name": "{{PREFIX}} Asignar prioridad",
+        "name": "Asignar prioridad",
         "module": "Leads",
         "trigger": {"on": "create_or_edit"},                 // create | edit | create_or_edit
-        "criteria": {"field": "{{PREFIX}}Tipo", "operator": "equal", "value": "Clinica"},  // opcional; omítelo si aplica a todos
+        "criteria": {"field": "Tipo", "operator": "equal", "value": "Clinica"},  // opcional; omítelo si aplica a todos
         "actions": [
-          {"type": "field_update", "field": "{{PREFIX}}Prioridad", "value": "Alta"}       // 1+ acciones
+          {"type": "field_update", "field": "Prioridad", "value": "Alta"}       // 1+ acciones
         ]
       } }
   ],

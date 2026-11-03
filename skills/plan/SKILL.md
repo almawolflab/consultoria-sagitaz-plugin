@@ -2,8 +2,9 @@
 name: plan
 description: >
   Skill de revisión del IR y generación del plan de implementación legible.
-  Claude realiza el juicio de fidelidad IR↔DERCAS; el script hace las comprobaciones
-  deterministas (validación de esquema, colisiones de match, dependencias).
+  Claude realiza el juicio de fidelidad IR↔DERCAS mediante un subagente independiente;
+  el script hace las comprobaciones deterministas (validación de esquema, colisiones de
+  match, dependencias).
 ---
 
 # Skill: `plan`
@@ -11,9 +12,10 @@ description: >
 **Etapa 4 de 5** del pipeline de consultoría Sagitaz.
 Revisa `ir.json` y produce `Plan.md` + `revision.json`/`revision.md`.
 
-> **Principio rector (§4.1):** El **juicio de fidelidad** lo da Claude con `revisor_ir.md.tmpl`;
-> las **comprobaciones mecánicas** (validación de esquema, colisiones, deps) las hace el script
-> determinista `revision_ir.py`. Sin modelos externos; el razonamiento lo hace Claude.
+> **Principio rector (§4.1):** El **juicio de fidelidad** lo da un **subagente independiente** con
+> `revisor_ir.md.tmpl` en contexto aislado; las **comprobaciones mecánicas** (validación de
+> esquema, colisiones, deps) las hace el script determinista `revision_ir.py`. Sin modelos externos;
+> el razonamiento lo hace Claude.
 
 ---
 
@@ -24,7 +26,6 @@ Revisa `ir.json` y produce `Plan.md` + `revision.json`/`revision.md`.
 | `~/Sagitaz/clientes/<cliente>/ir.json` | Salida de la skill `dercas` |
 | `~/Sagitaz/clientes/<cliente>/DERCAS.json` | Para verificar fidelidad IR↔DERCAS |
 | `assets/prompts/revisor_ir.md.tmpl` | Rúbrica de fidelidad (6 ejes) |
-| `assets/prompts/revisor_correcciones.md.tmpl` | Instrucciones de corrección post-revisión |
 
 ---
 
@@ -46,13 +47,22 @@ El script realiza comprobaciones **deterministas** (sin modelo):
 - Render con `parametrizacion.summary` → `revision.json` + `revision.md` estructurados.
 
 El **juicio de fidelidad** (invención, faltante, tipo, clasificación, trazabilidad,
-idempotencia) **no** lo hace el script — lo hace Claude en el Paso 2.
+idempotencia) **no** lo hace el script — lo hace un subagente Claude en el Paso 2.
 
-### Paso 2 — Juicio de fidelidad IR↔DERCAS (Claude con criterio)
+### Paso 2 — Juicio de fidelidad IR↔DERCAS (subagente Claude con contexto independiente)
 
-Claude lee `revision.md` (salida del script) y aplica `assets/prompts/revisor_ir.md.tmpl`:
+Claude lanza un **subagente** mediante la herramienta `Agent` de Claude Code. El subagente
+recibe en **contexto fresco** (sin memoria del Claude que generó el IR):
 
-Rúbrica de 6 ejes:
+- `ir.json` — el IR a auditar
+- `DERCAS.json` — la fuente de verdad del consultor
+- `assets/prompts/revisor_ir.md.tmpl` — la rúbrica de los 6 ejes
+
+La independencia viene del contexto aislado del subagente: al no compartir la sesión con
+el Claude que generó el IR, el juicio es genuinamente externo (no un auto-juicio).
+
+El subagente devuelve un veredicto JSON con puntuación y defectos por los 6 ejes:
+
 1. **Invención** — ¿hay items sin `from` o cuyo `from` no existe en el DERCAS?
 2. **Faltante** — ¿hay requerimientos del DERCAS sin items en el IR?
 3. **Tipo** — ¿los `data_type` son los adecuados para cada requerimiento?
@@ -60,8 +70,11 @@ Rúbrica de 6 ejes:
 5. **Trazabilidad** — ¿cada item tiene `from` con el id del requerimiento origen?
 6. **Idempotencia** — ¿los `match` son suficientemente selectivos?
 
-Si hay correcciones, Claude aplica `assets/prompts/revisor_correcciones.md.tmpl` y propone
-el `ir.json` corregido para que el consultor lo revise.
+Claude principal escribe los resultados del subagente en `revision_fidelidad.json`.
+
+Si la auditoría detecta defectos **reparables** (errores claros, no decisiones del
+consultor), Claude corrige el `ir.json` guiándose por el veredicto recibido del
+subagente — sin prompt aparte, aplicando directamente lo que indica el veredicto.
 
 ### Paso 3 — Plan de implementación (Claude)
 
@@ -77,9 +90,8 @@ Claude genera `Plan.md` con:
 | Quién | Qué hace |
 |-------|---------|
 | **Script** (`revision_ir.py`) | Validación, colisiones de match, deps, render — determinista |
-| **Claude** | Juicio de fidelidad IR↔DERCAS con `revisor_ir.md.tmpl` |
-| **Claude** | Propuesta de correcciones con `revisor_correcciones.md.tmpl` |
-| **Claude** | Redacción del `Plan.md` legible |
+| **Subagente Claude** | Juicio de fidelidad IR↔DERCAS con `revisor_ir.md.tmpl` en contexto independiente |
+| **Claude** (principal) | Correcciones reparables al IR según veredicto; redacción de `Plan.md` |
 
 ---
 
@@ -89,6 +101,7 @@ Claude genera `Plan.md` con:
 |---------|----------------------|
 | `revision.json` | `~/Sagitaz/clientes/<cliente>/revision.json` |
 | `revision.md` | `~/Sagitaz/clientes/<cliente>/revision.md` |
+| `revision_fidelidad.json` | `~/Sagitaz/clientes/<cliente>/revision_fidelidad.json` |
 | `Plan.md` | `~/Sagitaz/clientes/<cliente>/Plan.md` |
 
 ---
@@ -100,8 +113,7 @@ skills/plan/
 ├── SKILL.md                              (este fichero)
 ├── assets/
 │   └── prompts/
-│       ├── revisor_ir.md.tmpl            (rúbrica de fidelidad IR↔DERCAS)
-│       └── revisor_correcciones.md.tmpl  (instrucciones de corrección post-revisión)
+│       └── revisor_ir.md.tmpl            (rúbrica de fidelidad IR↔DERCAS — para el subagente)
 └── scripts/
     └── revision_ir.py                    (checks deterministas + render summary)
 ```

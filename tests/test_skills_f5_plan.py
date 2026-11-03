@@ -16,17 +16,21 @@ FIXTURE_DIR = SCRIPTS_DIR / "tests" / "fixtures"
 
 
 def test_assets_prompts_plan_presentes():
-    """revisor_ir.md.tmpl y revisor_correcciones.md.tmpl deben existir en plan/assets/prompts/."""
+    """revisor_ir.md.tmpl debe existir en plan/assets/prompts/;
+    revisor_correcciones.md.tmpl NO debe existir (AW-193: prompt mal cableado eliminado)."""
     prompts_dir = PLAN_DIR / "assets" / "prompts"
-    for nombre in ["revisor_ir", "revisor_correcciones"]:
-        tmpl = prompts_dir / f"{nombre}.md.tmpl"
-        assert tmpl.exists(), f"Falta {tmpl}"
+    tmpl_revisor_ir = prompts_dir / "revisor_ir.md.tmpl"
+    assert tmpl_revisor_ir.exists(), f"Falta {tmpl_revisor_ir}"
+    tmpl_correcciones = prompts_dir / "revisor_correcciones.md.tmpl"
+    assert not tmpl_correcciones.exists(), \
+        "revisor_correcciones.md.tmpl debe haber sido eliminado (AW-193)"
 
 
 def test_prompts_plan_tienen_comentario_origen():
-    """Los prompts copiados deben tener comentario HTML de origen (AW-188)."""
+    """Los prompts presentes deben tener comentario HTML de origen (AW-188)."""
     prompts_dir = PLAN_DIR / "assets" / "prompts"
-    for nombre in ["revisor_ir", "revisor_correcciones"]:
+    # Solo revisor_ir.md.tmpl (revisor_correcciones eliminado por AW-193)
+    for nombre in ["revisor_ir"]:
         tmpl = prompts_dir / f"{nombre}.md.tmpl"
         text = tmpl.read_text(encoding="utf-8")
         assert "<!-- origen:" in text, f"{nombre}.md.tmpl no tiene comentario de origen"
@@ -121,3 +125,24 @@ def test_revision_ir_detecta_id_duplicado(tmp_path):
         assert errores or rc != 0, "No detectó el id duplicado"
     else:
         assert rc != 0, "Con IR inválido debe fallar"
+
+
+# ---- AW-193: plan SKILL.md — subagente + sin revisor_correcciones ----
+
+def test_skill_md_plan_instruye_subagente_auditoria():
+    """SKILL.md de plan debe instruir el uso de un subagente para auditoría independiente
+    (AW-193: juicio de fidelidad en contexto aislado)."""
+    text = (PLAN_DIR / "SKILL.md").read_text(encoding="utf-8")
+    # Debe mencionar subagente / Agent (la herramienta Claude Code)
+    assert any(kw in text for kw in ["subagente", "Agent", "subagent"]), \
+        "SKILL.md plan debe mencionar subagente/Agent para el juicio de fidelidad independiente (AW-193)"
+    # Debe indicar que es contexto independiente / aislado
+    assert any(kw in text.lower() for kw in ["independiente", "contexto", "aislado", "fresco"]), \
+        "SKILL.md plan debe explicar que el subagente trabaja en contexto independiente (AW-193)"
+
+
+def test_skill_md_plan_no_menciona_revisor_correcciones():
+    """SKILL.md de plan NO debe mencionar revisor_correcciones (AW-193: prompt mal cableado eliminado)."""
+    text = (PLAN_DIR / "SKILL.md").read_text(encoding="utf-8")
+    assert "revisor_correcciones" not in text, \
+        "SKILL.md plan aún menciona revisor_correcciones (AW-193: debe estar eliminado)"

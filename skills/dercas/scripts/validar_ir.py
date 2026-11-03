@@ -30,6 +30,61 @@ except ImportError as e:
     sys.exit(1)
 
 
+import re as _re
+
+_PLACEHOLDER_RE = _re.compile(r"\{\{[A-Z_]+\}\}")
+
+
+def _check_placeholders(ir: dict) -> list[str]:
+    """Devuelve lista de errores si algún api_name/field_label/name contiene placeholder {{...}}.
+
+    AW-192: la convención {{PREFIX}} fue eliminada; nombres custom son planos.
+    """
+    errors = []
+    # fields: api_name y field_label
+    for item in ir.get("fields") or []:
+        item_id = item.get("id", "?")
+        for key_path, value in [
+            ("match.api_name", (item.get("match") or {}).get("api_name", "")),
+            ("payload.field_label", (item.get("payload") or {}).get("field_label", "")),
+        ]:
+            if _PLACEHOLDER_RE.search(str(value)):
+                errors.append(
+                    f"Item '{item_id}' tiene placeholder sin sustituir en {key_path}: {value!r}"
+                )
+    # roles, profiles, workflows: name
+    for seccion in ("roles", "profiles", "workflows"):
+        for item in ir.get(seccion) or []:
+            item_id = item.get("id", "?")
+            for key_path, value in [
+                ("match.name", (item.get("match") or {}).get("name", "")),
+                ("payload.name", (item.get("payload") or {}).get("name", "")),
+            ]:
+                if _PLACEHOLDER_RE.search(str(value)):
+                    errors.append(
+                        f"Item '{item_id}' ({seccion}) tiene placeholder sin sustituir "
+                        f"en {key_path}: {value!r}"
+                    )
+    # workflows: criteria.field y actions[].field (donde la convención vieja ponía {{PREFIX}}Tipo/{{PREFIX}}Prioridad)
+    for item in ir.get("workflows") or []:
+        item_id = item.get("id", "?")
+        payload = item.get("payload") or {}
+        criteria_field = (payload.get("criteria") or {}).get("field", "")
+        if _PLACEHOLDER_RE.search(str(criteria_field)):
+            errors.append(
+                f"Item '{item_id}' (workflows) tiene placeholder sin sustituir "
+                f"en payload.criteria.field: {criteria_field!r}"
+            )
+        for i, action in enumerate(payload.get("actions") or []):
+            action_field = (action or {}).get("field", "")
+            if _PLACEHOLDER_RE.search(str(action_field)):
+                errors.append(
+                    f"Item '{item_id}' (workflows) tiene placeholder sin sustituir "
+                    f"en payload.actions[{i}].field: {action_field!r}"
+                )
+    return errors
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Validación del IR declarativo (ir.json)")
@@ -49,6 +104,13 @@ def main(argv=None):
         return 1
     except Exception as e:  # noqa: BLE001
         print(f"Error al leer el IR: {e}", file=sys.stderr)
+        return 1
+
+    # Guard AW-192: rechazar placeholders {{...}} sin sustituir
+    placeholder_errors = _check_placeholders(ir)
+    if placeholder_errors:
+        for err in placeholder_errors:
+            print(f"IR inválido (placeholder sin sustituir): {err}", file=sys.stderr)
         return 1
 
     # Verificar también el orden topológico (detecta ciclos y deps colgantes)

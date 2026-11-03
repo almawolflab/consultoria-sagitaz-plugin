@@ -52,7 +52,7 @@ Una vez cerrado el DERCAS, Claude aplica `assets/prompts/mapper_ir.md.tmpl`:
   + `manual_todo` + `_changelog`.
 - Respeta las **reglas duras** del prompt:
   - Solo tipos automatizables (p.ej. `picklist`, `text`; no `fileupload`).
-  - `{{PREFIX}}` obligatorio en `api_name` de los campos del cliente.
+  - Nombres planos en `api_name` y nombres custom (sin prefijo).
   - `match` por idempotencia (lookup del item existente).
   - `from` por trazabilidad (id del requerimiento origen).
   - `depends_on` para orden de aplicación.

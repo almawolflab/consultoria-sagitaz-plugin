@@ -60,20 +60,18 @@ def test_skill_md_ders_no_menciona_gemini_como_motor():
     assert not lines_with_gemini, f"SKILL.md ders menciona Gemini como motor: {lines_with_gemini}"
 
 
-def test_prompts_ders_conservan_prefix():
-    """Los prompts tmpl que usan {{PREFIX}} deben conservarlo (no sustituir)."""
+def test_prompts_ders_no_tienen_prefix():
+    """Los prompts de ders de cara al consultor (mapper_ir, SKILL.md dercas/ders) NO deben
+    contener {{PREFIX}} — AW-192: nombres planos, sin placeholder de prefijo."""
     prompts_dir = DERS_DIR / "assets" / "prompts"
-    # patcher.md.tmpl es el que normalmente usa {{PREFIX}}
+    # Ningún prompt de la skill ders debe exponer {{PREFIX}} al consultor
     for nombre in ["extractor", "enriquecedor", "juez", "patcher"]:
         tmpl = prompts_dir / f"{nombre}.md.tmpl"
         text = tmpl.read_text(encoding="utf-8")
-        # Si el prompt original tiene {{PREFIX}}, la copia también debe tenerlo
-        orig = (pathlib.Path(__file__).resolve().parents[2] / "pipeline" / "prompts" /
-                f"{nombre}.md.tmpl")
-        if orig.exists():
-            orig_text = orig.read_text(encoding="utf-8")
-            if "{{PREFIX}}" in orig_text:
-                assert "{{PREFIX}}" in text, f"{nombre}.md.tmpl perdió {{{{PREFIX}}}}"
+        # {{PLANTILLA_ESTRUCTURA}} y similares son variables de plantilla legítimas;
+        # {{PREFIX}} específicamente es el placeholder eliminado por AW-192.
+        assert "{{PREFIX}}" not in text, \
+            f"{nombre}.md.tmpl aún contiene {{{{PREFIX}}}} (AW-192: debe usar nombres planos)"
 
 
 def test_prompts_ders_tienen_comentario_origen():

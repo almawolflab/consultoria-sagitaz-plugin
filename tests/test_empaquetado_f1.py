@@ -29,8 +29,8 @@ def test_manifest_valido():
         "python_bin default no debe ser 'python3' suelto (AW-190: usar ruta absoluta)"
     assert "python3.11" in python_bin_default or "py -3" in python_bin_default, \
         f"python_bin default debe contener 'python3.11' o 'py -3'; tiene: {python_bin_default!r}"
-    # version presente (0.1.2 tras el bump de AW-191)
-    assert data.get("version") == "0.1.2", f"version incorrecto: {data.get('version')!r}"
+    # version presente (0.1.3 tras el bump de AW-192/193)
+    assert data.get("version") == "0.1.3", f"version incorrecto: {data.get('version')!r}"
     # displayName presente
     assert "displayName" in data, "falta displayName"
     # $schema presente
