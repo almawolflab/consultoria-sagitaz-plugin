@@ -1,16 +1,27 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "sagitaz-aiops",
-  "owner": { "name": "Sagitaz / AIOps" },
+  "owner": {
+    "name": "Sagitaz / AIOps"
+  },
   "description": "Marketplace interno de AIOps/Sagitaz: plugins de consultoría para Claude Code.",
   "plugins": [
     {
       "name": "consultoria-sagitaz",
       "displayName": "Consultoría Sagitaz (DERS→Implementación)",
       "description": "Pipeline de consultoría: DERS, DERCAS, IR, matriz CRM, plan e implementación REST v8 (solo sandbox).",
-      "version": "0.1.3",
-      "author": { "name": "Sagitaz / AIOps" },
-      "keywords": ["sagitaz", "zoho", "crm", "ders", "dercas", "consultoria"],
+      "version": "0.1.4",
+      "author": {
+        "name": "Sagitaz / AIOps"
+      },
+      "keywords": [
+        "sagitaz",
+        "zoho",
+        "crm",
+        "ders",
+        "dercas",
+        "consultoria"
+      ],
       "source": "./"
     }
   ]

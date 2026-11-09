@@ -4,7 +4,7 @@
 Verifica los requisitos mínimos para que el pipeline funcione correctamente:
 
 Checks siempre OBLIGATORIOS (exit != 0 si alguno falla):
-  [A] Python >= 3.11 en el venv (o sistema si no hay venv).
+  [A] Python >= 3.10 en el venv (o sistema si no hay venv).
   [B] openpyxl importa sin error en el venv.
   [C] imageio-ffmpeg NO está instalado en el venv.
 
@@ -132,7 +132,7 @@ def _package_in_site_packages(venv_dir: Path, package_name: str) -> bool:
 
 
 def _python_version_ok(python_exe: Path) -> tuple[bool, str]:
-    """Verifica que Python >= 3.11 en el intérprete dado."""
+    """Verifica que Python >= 3.10 en el intérprete dado."""
     result = subprocess.run(
         [str(python_exe), "-c",
          "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"],
@@ -147,8 +147,8 @@ def _python_version_ok(python_exe: Path) -> tuple[bool, str]:
         major, minor = int(parts[0]), int(parts[1])
     except (ValueError, IndexError):
         return False, f"Versión no reconocida: {version_str!r}"
-    if (major, minor) < (3, 11):
-        return False, f"Python {version_str} < 3.11 (requerido: 3.11+)"
+    if (major, minor) < (3, 10):
+        return False, f"Python {version_str} < 3.10 (requerido: 3.10+)"
     return True, f"Python {version_str} OK"
 
 
@@ -169,7 +169,7 @@ def _openpyxl_importa(python_exe: Path) -> tuple[bool, str]:
 # ---------------------------------------------------------------------------
 
 def check_python_version(venv_dir: Path | None) -> tuple[bool, str]:
-    """[A] Python >= 3.11."""
+    """[A] Python >= 3.10."""
     if venv_dir and venv_dir.exists():
         python = _venv_python(venv_dir)
         if not python.exists():
@@ -337,7 +337,7 @@ def run_doctor(
 
     # --- Checks siempre obligatorios ---
     always_mandatory = [
-        ("A", "Python >= 3.11",    lambda: check_python_version(venv_dir)),
+        ("A", "Python >= 3.10",    lambda: check_python_version(venv_dir)),
         ("B", "openpyxl importa",  lambda: check_openpyxl(venv_dir)),
         ("C", "Sin imageio-ffmpeg", lambda: check_no_imageio(venv_dir)),
     ]

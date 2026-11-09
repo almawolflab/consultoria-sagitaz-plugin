@@ -93,18 +93,18 @@ class TestAusenciaAW18x:
 
 
 class TestVersionBump:
-    """AC-10: Versión 0.1.3 en plugin.json y marketplace.json (bumpeada por AW-192/193)."""
+    """AC-10: Versión 0.1.4 en plugin.json y marketplace.json (bumpeada por AW-192/193)."""
 
     def test_plugin_json_version(self):
-        """plugin.json debe tener version 0.1.3."""
+        """plugin.json debe tener version 0.1.4."""
         assert PLUGIN_JSON.exists(), f"No existe: {PLUGIN_JSON}"
         data = json.loads(PLUGIN_JSON.read_text())
-        assert data.get("version") == "0.1.3", (
-            f"plugin.json version={data.get('version')!r}, esperado '0.1.3'"
+        assert data.get("version") == "0.1.4", (
+            f"plugin.json version={data.get('version')!r}, esperado '0.1.4'"
         )
 
     def test_marketplace_json_version(self):
-        """marketplace.json debe tener version 0.1.3 en el plugin consultoria-sagitaz."""
+        """marketplace.json debe tener version 0.1.4 en el plugin consultoria-sagitaz."""
         assert MARKETPLACE_JSON.exists(), f"No existe: {MARKETPLACE_JSON}"
         data = json.loads(MARKETPLACE_JSON.read_text())
         # La versión puede estar en data["version"] (raíz) o en data["plugins"][0]["version"]
@@ -113,6 +113,6 @@ class TestVersionBump:
             plugins = data.get("plugins", [])
             if plugins:
                 version = plugins[0].get("version")
-        assert version == "0.1.3", (
-            f"marketplace.json version={version!r}, esperado '0.1.3'"
+        assert version == "0.1.4", (
+            f"marketplace.json version={version!r}, esperado '0.1.4'"
         )

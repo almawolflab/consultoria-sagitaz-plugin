@@ -16,27 +16,21 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 # ---------------------------------------------------------------------------
 
 class TestReadme:
-    """README.md contiene referencias correctas a python3.11 y doctor sin flags."""
+    """README.md: onboarding automático (AW-194) y doctor sin flags."""
 
-    def test_readme_no_tiene_python_bin_python3_suelto(self):
-        """python_bin no apunta a 'python3' sin ruta absoluta."""
+    def test_readme_no_exige_ruta_fija_python311(self):
+        """AW-194: el README ya NO exige fijar python_bin a /opt/homebrew/bin/python3.11."""
         readme = (PLUGIN_ROOT / "README.md").read_text()
-        # No debe haber `python_bin` apuntando a `python3` suelto (sin ruta absoluta)
-        # Patrón problemático: `python3` como valor de python_bin sin ser ruta absoluta
-        # Buscamos si hay "python_bin" seguido (en el readme) por el valor "python3"
-        # como valor de config (no como ejemplo de invocación)
-        bad_pattern = re.compile(r'`python_bin`.*?`python3`', re.DOTALL)
-        # En la tabla de userConfig, el valor de python_bin debe tener la ruta absoluta
-        # Comprobamos que no diga simplemente "python3" en la celda de la tabla
-        assert "python3` en macOS" not in readme or "/opt/homebrew" in readme or "python3.11" in readme, (
-            "README.md debe referenciar python3.11 con ruta absoluta para macOS"
+        assert "/opt/homebrew/bin/python3.11` en macOS" not in readme, (
+            "README no debe pedir fijar python_bin a una ruta absoluta (ahora autodescubre)"
         )
 
-    def test_readme_tiene_ruta_absoluta_python311(self):
-        """README.md menciona la ruta absoluta a python3.11."""
+    def test_readme_onboarding_autodescubre_python(self):
+        """AW-194: el README ya no fija una ruta a python3.11; el onboarding autodescubre Python ≥3.10."""
         readme = (PLUGIN_ROOT / "README.md").read_text()
-        assert "/opt/homebrew/bin/python3.11" in readme or "python3.11" in readme, (
-            "README.md debe mencionar python3.11 o su ruta absoluta"
+        assert "3.10" in readme, "README debe indicar el piso Python 3.10+"
+        assert "autodescubre" in readme.lower() or "python.org" in readme, (
+            "README debe reflejar el onboarding automático (autodescubrimiento / python.org)"
         )
 
     def test_readme_doctor_documentado_sin_flags(self):
@@ -127,16 +121,12 @@ class TestVersionBump:
             f"la versión debe estar bumpeada por AW-191, es '{_plugin_version()}'"
         )
 
-    def test_plugin_json_python_bin_default_es_ruta_absoluta(self):
-        """plugin.json: el default de python_bin es la ruta absoluta a python3.11."""
+    def test_plugin_json_python_bin_es_opcional(self):
+        """AW-194: python_bin es override opcional — sin default de ruta fija (autodescubrimiento)."""
         plugin_json = (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text()
         data = json.loads(plugin_json)
-        python_bin_default = data.get("userConfig", {}).get("python_bin", {}).get("default", "")
-        # En macOS debe ser la ruta absoluta; en Windows sería py -3
-        # El default debe no ser simplemente "python3" suelto
-        assert python_bin_default != "python3", (
-            f"plugin.json python_bin default no debe ser 'python3' suelto; es: '{python_bin_default}'"
-        )
-        assert "python3.11" in python_bin_default or "py -3" in python_bin_default, (
-            f"plugin.json python_bin default debe ser ruta absoluta a python3.11 o 'py -3'; es: '{python_bin_default}'"
+        python_bin = data.get("userConfig", {}).get("python_bin", {})
+        assert python_bin, "python_bin debe seguir existiendo como override opcional"
+        assert not python_bin.get("default"), (
+            f"python_bin no debe tener default de ruta fija; es: '{python_bin.get('default')}'"
         )

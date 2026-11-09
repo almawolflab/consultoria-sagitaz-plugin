@@ -7,14 +7,18 @@ DERS → DERCAS → IR → Matriz CRM → Plan → Implementación (solo sandbox
 
 ## Para el consultor — Setup inicial
 
-### 1. Requisitos previos
+### 1. Requisitos previos (macOS)
+
+**Lo único que instalas a mano es Python 3.10 o superior.** El resto (entorno virtual,
+dependencias, verificación) lo prepara el plugin **automáticamente** al abrir sesión.
 
 | Requisito | Versión mínima | Instalación |
 |-----------|---------------|-------------|
-| Python | 3.11+ | macOS: `brew install python@3.11` o [python.org](https://www.python.org/downloads/); Windows: instalador oficial con **"Add to PATH"** |
-| Claude Code / Claude Teams | última | Incluido en la sesión de Teams |
+| Python | 3.10+ | [python.org/downloads](https://www.python.org/downloads/) (universal) · o, si ya tienes Homebrew: `brew install python@3.12` |
+| Claude Desktop (pestaña Code) / Claude Code | última | Incluido en tu plan |
 
-> **Windows:** usa `py -3` como intérprete. Al configurar `userConfig.python_bin`, introduce `py -3`.
+> No necesitas saber la ruta exacta de Python: el plugin **autodescubre** cualquier `python3.1x` ≥ 3.10
+> de tu sistema. (Alcance actual: macOS.)
 
 ### 2. Instalar el plugin desde el marketplace del owner
 
@@ -24,45 +28,44 @@ DERS → DERCAS → IR → Matriz CRM → Plan → Implementación (solo sandbox
 
    | Campo | Qué introducir |
    |-------|---------------|
-   | `transcripciones_endpoint` | URL base del endpoint `/transcripciones` (la da el owner) |
-   | `transcripciones_team_token` | Token de equipo (lo reparte el owner; se guarda de forma segura) |
-   | `python_bin` | `/opt/homebrew/bin/python3.11` en macOS · `py -3` en Windows |
+   | `transcripciones_endpoint` | URL base del endpoint `/transcripciones` (la da el owner) — *solo Fase 2* |
+   | `transcripciones_team_token` | Token de equipo (lo reparte el owner; se guarda de forma segura) — *solo Fase 2* |
+   | `python_bin` | **Déjalo vacío** (el plugin autodescubre Python). Solo fíjalo si la autodetección falla. |
 
    > El `transcripciones_team_token` se almacena en el almacén seguro de la plataforma,
    > **nunca** en `settings.json` ni en el repo.
 
-### 3. Bootstrap del runtime Python
+### 3. Preparación automática del entorno (hook SessionStart)
 
-La primera vez que uses una skill que ejecuta scripts, se lanza `bootstrap.py` automáticamente.
-También puedes ejecutarlo a mano desde la raíz del plugin:
+**No tienes que hacer nada manual.** Al abrir una sesión en la pestaña Code, un hook `SessionStart`
+del plugin:
+1. **autodescubre** un Python ≥ 3.10 (o usa `python_bin` si lo fijaste);
+2. **crea el venv** e instala las dependencias (`openpyxl`) la **primera vez** (verás un aviso
+   "Preparando el entorno… ~15-30s"); las siguientes sesiones son instantáneas (idempotente);
+3. **informa a Claude** del estado del entorno; si **falta Python ≥ 3.10**, muestra un aviso con el
+   enlace de instalación ([python.org/downloads](https://www.python.org/downloads/)).
+
+El venv vive en un directorio fijo (`~/.local/share/consultoria-sagitaz/venv`, salvo override con
+`CONSULTORIA_SAGITAZ_DATA` / `XDG_DATA_HOME`).
+
+> **Fallback manual (opcional):** si lo necesitas, puedes forzar la preparación con
+> `python3 scripts/bootstrap.py` (o `--force` para recrearlo).
+
+### 4. Verificar el entorno con doctor.py (diagnóstico opcional)
+
+El onboarding ya es automático (paso 3). Si quieres diagnosticar a mano:
 
 ```bash
-python3 scripts/bootstrap.py
+python3 scripts/doctor.py
 ```
 
-Esto crea un venv en un directorio fijo determinista (`~/.local/share/consultoria-sagitaz/venv`
-salvo override con `CONSULTORIA_SAGITAZ_DATA` o `XDG_DATA_HOME`) e instala las dependencias del plugin
-(`openpyxl`, `et-xmlfile`). Es **idempotente**: re-ejecutar no reinstala si ya está OK.
-
-Para recrear el venv desde cero:
-
-```bash
-python3 scripts/bootstrap.py --force
-```
-
-### 4. Verificar el entorno con doctor.py
-
-```bash
-/opt/homebrew/bin/python3.11 scripts/doctor.py
-```
-
-> **No necesitas pasar flags**: doctor autodescubre el venv de bootstrap y la ruta del token OAuth.
+> **No necesitas pasar flags**: doctor autodescubre el venv y la ruta del token OAuth.
 
 Checks que realiza:
 
 | Check | Descripción | Obligatorio |
 |-------|-------------|-------------|
-| [A] Python >= 3.11 | Versión del intérprete en el venv | Sí |
+| [A] Python >= 3.10 | Versión del intérprete en el venv | Sí |
 | [B] openpyxl importa | Dependencia de la matriz CRM | Sí |
 | [C] Sin imageio-ffmpeg | No debe estar en el venv del plugin | Sí |
 | [D] Fichero OAuth existe | `zoho_crm_oauth.json` del consultor | Solo para `/implementar` (aviso sin `--require-oauth`) |
