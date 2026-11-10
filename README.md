@@ -20,11 +20,14 @@ dependencias, verificación) lo prepara el plugin **automáticamente** al abrir 
 > No necesitas saber la ruta exacta de Python: el plugin **autodescubre** cualquier `python3.1x` ≥ 3.10
 > de tu sistema. (Alcance actual: macOS.)
 
-### 2. Instalar el plugin desde el marketplace del owner
+### 2. Instalar el plugin desde el marketplace
 
-1. Abre Claude Code y escribe `/plugin`.
-2. En la pestaña del marketplace, busca **consultoria-sagitaz**.
-3. Pulsa **Instalar**. Claude Code pedirá los valores de `userConfig`:
+1. En **Customize → Plugins → + Add → Add marketplace**, introduce el repositorio del plugin:
+   `almawolflab/consultoria-sagitaz-plugin` (o la URL git
+   `https://github.com/almawolflab/consultoria-sagitaz-plugin.git`) y pulsa **Sync**.
+   (En Claude Code por terminal: `/plugin` → añade el mismo marketplace.)
+2. Instala (o actualiza) **consultoria-sagitaz** desde el marketplace añadido.
+3. Al instalarlo, rellena los valores de `userConfig`:
 
    | Campo | Qué introducir |
    |-------|---------------|
@@ -98,13 +101,13 @@ Esto abre el navegador con el consentimiento OAuth de tu cuenta Zoho y guarda el
 > El plugin bloquea cualquier operación contra producción (`www.zohoapis.com`) a nivel de código
 > (`scripts/parametrizacion/crm.py:56-59`).
 
-### 6. Prueba E2E con cliente Tufisio
+### 6. Prueba E2E
 
 Para confirmar que todo funciona de extremo a extremo:
 
-1. Abre una sesión de Claude Teams con el plugin activo.
-2. Invoca `/ders` con una transcripción de Tufisio.
-3. Sigue el ciclo hasta `/implementar` sobre tu CRM sandbox.
+1. Abre una sesión con el plugin activo.
+2. Invoca `ders` para un cliente de prueba.
+3. Sigue el ciclo hasta `implementar` sobre tu CRM sandbox.
 4. Verifica en el sandbox que los campos aparecen correctamente.
 
 ---
@@ -146,8 +149,8 @@ Los valores de `userConfig` solo llegan a procesos de **hook** como `CLAUDE_PLUG
 
 ### Estructura del marketplace
 
-El owner mantiene un repositorio en el GitLab self-hosted con el catálogo del marketplace.
-Ver el fichero de ejemplo en `.claude-plugin/marketplace.json.example`:
+El `marketplace.json` y el plugin se distribuyen desde el repositorio público de GitHub.
+El `marketplace.json` vive en la raíz del repo (`.claude-plugin/marketplace.json`):
 
 ```json
 {
@@ -155,20 +158,16 @@ Ver el fichero de ejemplo en `.claude-plugin/marketplace.json.example`:
     "name": "consultoria-sagitaz",
     "source": {
       "type": "git",
-      "url": "https://gitlab.192.168.0.29.nip.io/aiops/<repo-marketplace>.git",
-      "directory": "plugin-claude"
+      "url": "https://github.com/almawolflab/consultoria-sagitaz-plugin.git"
     },
     "autoUpdate": false
   }]
 }
 ```
 
-> **Fuente `git` (no `github`):** el host es GitLab self-hosted. Cada consultor necesita
-> acceso de lectura al repositorio.
-
-> **Certificado autofirmado:** si Claude Code no puede clonar por el cert autofirmado del
-> GitLab, la alternativa es usar `CLAUDE_CODE_PLUGIN_SEED_DIR` con una copia local
-> pre-clonada del plugin, o alojar un `marketplace.json` en una URL HTTPS pública/interna.
+> **Añadir el marketplace:** en **Customize → Plugins → + Add → Add marketplace**, con el repo
+> `almawolflab/consultoria-sagitaz-plugin` (o su URL git). El conector de GitHub de la app
+> no admite el GitLab self-hosted; por eso la distribución va por este GitHub público.
 
 ### Managed settings (admin console de claude.ai, rol Owner)
 
@@ -180,7 +179,7 @@ Publicar en la consola de administración del Team:
     "sagitaz-aiops": {
       "source": {
         "type": "git",
-        "url": "https://gitlab.192.168.0.29.nip.io/aiops/<repo-marketplace>.git"
+        "url": "https://github.com/almawolflab/consultoria-sagitaz-plugin.git"
       }
     }
   },

@@ -60,7 +60,7 @@ compartido, o entrega en persona):
 
 ### Prerequisitos
 
-- Tener acceso a la organización sandbox "Prueba Salto" de Zoho CRM con **tu propia cuenta**.
+- Tener acceso a tu organización **sandbox** de Zoho CRM con **tu propia cuenta**.
 - Tener el `client_id` y `client_secret` de la connected app (te los reparte el owner).
   Hay tres formas de proveerlos (en orden de preferencia):
   1. **Ajustes del plugin (recomendado, AW-196):** en *Settings* del plugin rellena
@@ -184,7 +184,7 @@ Si el `client_secret` se ve comprometido:
 | Mensaje | Causa | Solución |
 |---------|-------|----------|
 | `crm_connected_app.json not found` | El fichero no está en `data_dir()` ni en `scripts/` | Rellena *Client ID/Secret* en los ajustes del plugin (se materializa solo), o colócalo en `data_dir()` (`~/.local/share/consultoria-sagitaz/`) o `scripts/`, o exporta `ZCRM_APP_*` |
-| `ERROR: Org type is 'production'` | Iniciaste sesión con una cuenta de producción | Usa tu cuenta del sandbox "Prueba Salto" |
+| `ERROR: Org type is 'production'` | Iniciaste sesión con una cuenta de producción | Usa tu cuenta del sandbox |
 | `ERROR: No authorization code received (timeout?)` | Cerraste el navegador o tardaste >120 s | Vuelve a ejecutar y completa el flujo rápidamente |
 | `error=access_denied` | Cancelaste el consentimiento | Ejecuta de nuevo y acepta los permisos |
 | `Faltan credenciales CRM: refresh_token` | Token corrompido o vacío | Borra `zoho_crm_oauth.json` y re-autoriza |
