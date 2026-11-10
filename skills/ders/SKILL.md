@@ -35,14 +35,17 @@ Convierte transcripciones de reuniones en un `DERS.json` al estándar Sagitaz.
 ```bash
 python skills/ders/scripts/fetch_transcripciones.py \
   --cliente <cliente> \
-  --endpoint $TRANSCRIPCIONES_ENDPOINT \
-  --token $TEAM_API_TOKEN \
   --out ~/Sagitaz/clientes/<cliente>/transcripciones.txt
 ```
 
-El script usa stdlib pura (`urllib`). Lee endpoint y token de env
-(`TRANSCRIPCIONES_ENDPOINT`, `TEAM_API_TOKEN`) o argumentos CLI.
-**Nunca imprime el token.** Sale con rc≠0 en errores 401/503/404 con mensaje claro.
+El script usa stdlib pura (`urllib`) y **autorresuelve** endpoint y token: si el consultor
+los configuró en los ajustes del plugin (*Endpoint de transcripciones* / *Token de equipo*),
+el hook SessionStart los materializa en `data_dir()/transcripciones.json` (AW-196) y el
+script los lee de ahí automáticamente — **no hace falta exportar variables de entorno**.
+Precedencia: `--endpoint`/`--token` (CLI) > env `TRANSCRIPCIONES_ENDPOINT`/`TEAM_API_TOKEN`
+> `data_dir()/transcripciones.json`.
+**Nunca imprime el token.** Sale con rc≠0 en errores 401/503/404 con mensaje claro
+(y si no hay endpoint/token configurados, indica que se fijen en los ajustes del plugin).
 
 ### Paso 2 — Claude redacta el DERS (criterio del modelo)
 

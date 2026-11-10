@@ -30,10 +30,17 @@ dependencias, verificación) lo prepara el plugin **automáticamente** al abrir 
    |-------|---------------|
    | `transcripciones_endpoint` | URL base del endpoint `/transcripciones` (la da el owner) — *solo Fase 2* |
    | `transcripciones_team_token` | Token de equipo (lo reparte el owner; se guarda de forma segura) — *solo Fase 2* |
+   | `crm_client_id` | Client ID de la connected app de Zoho CRM sandbox (lo reparte el owner) — *solo `/implementar`* |
+   | `crm_client_secret` | Client Secret de la connected app (se guarda de forma segura) — *solo `/implementar`* |
    | `python_bin` | **Déjalo vacío** (el plugin autodescubre Python). Solo fíjalo si la autodetección falla. |
 
-   > El `transcripciones_team_token` se almacena en el almacén seguro de la plataforma,
-   > **nunca** en `settings.json` ni en el repo.
+   > Los campos sensibles (`transcripciones_team_token`, `crm_client_secret`) se almacenan en
+   > el almacén seguro de la plataforma, **nunca** en `settings.json` ni en el repo.
+   >
+   > **Materialización (AW-196):** al abrir sesión, el hook SessionStart escribe estos valores
+   > en `data_dir()` (`~/.local/share/consultoria-sagitaz/`) como `transcripciones.json` y
+   > `crm_connected_app.json` (permisos `0600`). Así las skills `ders`/`implementar` los usan
+   > **sin exportar variables de entorno ni tocar ficheros a mano**.
 
 ### 3. Preparación automática del entorno (hook SessionStart)
 
@@ -102,15 +109,23 @@ Para confirmar que todo funciona de extremo a extremo:
 
 ---
 
-## Mapeo userConfig → variables de entorno
+## Mapeo userConfig → ficheros materializados (AW-196)
 
-Las skills del plugin pasan los valores de `userConfig` a los scripts como variables de entorno:
+Los valores de `userConfig` solo llegan a procesos de **hook** como `CLAUDE_PLUGIN_OPTION_*`
+(no a los scripts que una skill ejecuta por Bash). Por eso el hook SessionStart los
+**materializa** en `data_dir()` (`~/.local/share/consultoria-sagitaz/`, override
+`CONSULTORIA_SAGITAZ_DATA`), con permisos `0600`, y los scripts los leen de ahí:
 
-| `userConfig` | Variable de entorno | Usado en |
-|-------------|--------------------|---------:|
-| `transcripciones_endpoint` | `TRANSCRIPCIONES_ENDPOINT` | `skills/ders/scripts/fetch_transcripciones.py` |
-| `transcripciones_team_token` | `TEAM_API_TOKEN` | `skills/ders/scripts/fetch_transcripciones.py` |
-| `python_bin` | _(se usa para invocar el intérprete del venv)_ | hooks de skills |
+| `userConfig` | Fichero en `data_dir()` | Clave | Usado en |
+|-------------|------------------------|-------|---------:|
+| `transcripciones_endpoint` | `transcripciones.json` | `endpoint` | `skills/ders/scripts/fetch_transcripciones.py` |
+| `transcripciones_team_token` | `transcripciones.json` | `token` | `skills/ders/scripts/fetch_transcripciones.py` |
+| `crm_client_id` | `crm_connected_app.json` | `client_id` | `scripts/authorize_crm.py` |
+| `crm_client_secret` | `crm_connected_app.json` | `client_secret` | `scripts/authorize_crm.py` |
+| `python_bin` | _(no se materializa)_ | — | hook SessionStart (autodescubre el intérprete) |
+
+> Precedencia en los consumidores: argumentos CLI > variables de entorno
+> (`TRANSCRIPCIONES_ENDPOINT`/`TEAM_API_TOKEN`, `ZCRM_APP_*`) > fichero materializado.
 
 ---
 

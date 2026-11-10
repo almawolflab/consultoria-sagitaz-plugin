@@ -10,12 +10,17 @@ env `ZCRM_*`. **Siempre** se usa el `api_domain` del fichero (el sandbox `sandbo
 """
 import json
 import os
+import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # scripts/
 DEFAULT_CREDS = os.path.join(HERE, "zoho_crm_oauth.json")
+
+# scripts/ en el path para reusar bootstrap.data_dir() (fuente única de la ruta de datos).
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
 
 
 _ENV = (("client_id", "ZCRM_CLIENT_ID"), ("client_secret", "ZCRM_CLIENT_SECRET"),
@@ -24,28 +29,33 @@ _ENV = (("client_id", "ZCRM_CLIENT_ID"), ("client_secret", "ZCRM_CLIENT_SECRET")
 
 
 def plugin_data_oauth_path():
-    """Ruta del token en $CLAUDE_PLUGIN_DATA, o None si la env no está definida."""
-    data = os.environ.get("CLAUDE_PLUGIN_DATA", "").strip()
-    return os.path.join(data, "zoho_crm_oauth.json") if data else None
+    """Ruta del token OAuth en data_dir() (determinista en cualquier contexto; AW-196).
+
+    Usa bootstrap.data_dir() —NO $CLAUDE_PLUGIN_DATA, que solo llega a procesos de hook,
+    no a los scripts que una skill ejecuta por Bash—. Así authorize_crm (escritura) y
+    crm/doctor (lectura) comparten la misma ruta que el hook de materialización.
+    """
+    import bootstrap
+    return os.path.join(str(bootstrap.data_dir()), "zoho_crm_oauth.json")
 
 
 def resolve_oauth_path(for_write=False):
     """Ruta única del token OAuth, compartida por crm/authorize/doctor.
 
-    - Escritura (authorize_crm): $CLAUDE_PLUGIN_DATA si está definida, si no DEFAULT_CREDS.
-    - Lectura (crm/doctor): prefiere $CLAUDE_PLUGIN_DATA si el fichero EXISTE ahí; si no,
-      cae a DEFAULT_CREDS (compat con setups manuales/monorepo). Si ninguno existe,
-      devuelve la ruta preferida para el mensaje de error.
+    - Escritura (authorize_crm): data_dir()/zoho_crm_oauth.json.
+    - Lectura (crm/doctor): prefiere data_dir() si el fichero EXISTE ahí; si no, cae a
+      DEFAULT_CREDS (compat con setups manuales/monorepo). Si ninguno existe, devuelve
+      la ruta preferida (data_dir()) para el mensaje de error.
     """
     primary = plugin_data_oauth_path()
     fallback = DEFAULT_CREDS  # scripts/zoho_crm_oauth.json
     if for_write:
-        return primary or fallback
-    if primary and os.path.exists(primary):
+        return primary
+    if os.path.exists(primary):
         return primary
     if os.path.exists(fallback):
         return fallback
-    return primary or fallback
+    return primary
 
 
 def load_creds(path=None):

@@ -61,16 +61,23 @@ compartido, o entrega en persona):
 ### Prerequisitos
 
 - Tener acceso a la organización sandbox "Prueba Salto" de Zoho CRM con **tu propia cuenta**.
-- Haber recibido `crm_connected_app.json` del owner y colocarlo en **`$CLAUDE_PLUGIN_DATA/`**
-  (o, como fallback, en `scripts/` del plugin):
-  ```
-  $CLAUDE_PLUGIN_DATA/crm_connected_app.json   ← este fichero, nunca commiteado
-  ```
-  Alternativamente, exporta las variables de entorno:
-  ```bash
-  export ZCRM_APP_CLIENT_ID="1000.xxx"
-  export ZCRM_APP_CLIENT_SECRET="yyy"
-  ```
+- Tener el `client_id` y `client_secret` de la connected app (te los reparte el owner).
+  Hay tres formas de proveerlos (en orden de preferencia):
+  1. **Ajustes del plugin (recomendado, AW-196):** en *Settings* del plugin rellena
+     **Zoho CRM — Client ID** y **Zoho CRM — Client Secret**. Al abrir sesión, el hook
+     SessionStart los materializa en `data_dir()/crm_connected_app.json` (permisos `0600`).
+     No tienes que tocar ficheros a mano.
+  2. **Fichero manual:** coloca `crm_connected_app.json` en el directorio de datos del
+     plugin, **`data_dir()`** (por defecto `~/.local/share/consultoria-sagitaz/`; override
+     con `CONSULTORIA_SAGITAZ_DATA`), o como fallback en `scripts/` del plugin:
+     ```
+     ~/.local/share/consultoria-sagitaz/crm_connected_app.json   ← nunca commiteado
+     ```
+  3. **Variables de entorno:**
+     ```bash
+     export ZCRM_APP_CLIENT_ID="1000.xxx"
+     export ZCRM_APP_CLIENT_SECRET="yyy"
+     ```
 
 ### Pasos de autorización
 
@@ -109,13 +116,17 @@ compartido, o entrega en persona):
 
 | Fichero | Ubicación | ¿Commiteado? |
 |---------|-----------|--------------|
-| `zoho_crm_oauth.json` | `$CLAUDE_PLUGIN_DATA/zoho_crm_oauth.json` (persistente entre actualizaciones del plugin; fallback: `scripts/zoho_crm_oauth.json`) | **NO** — está en `.gitignore` |
-| `crm_connected_app.json` | `$CLAUDE_PLUGIN_DATA/crm_connected_app.json` o `scripts/crm_connected_app.json` | **NO** — está en `.gitignore` |
+| `zoho_crm_oauth.json` | `data_dir()/zoho_crm_oauth.json` (persistente entre actualizaciones del plugin; fallback: `scripts/zoho_crm_oauth.json`) | **NO** — está en `.gitignore` |
+| `crm_connected_app.json` | `data_dir()/crm_connected_app.json` o `scripts/crm_connected_app.json` | **NO** — está en `.gitignore` |
 
-> **`$CLAUDE_PLUGIN_DATA`** es el directorio de datos persistentes que gestiona Claude Code.
-> El token se guarda ahí (fuera del directorio del plugin en caché) y **sobrevive a
-> actualizaciones/reinstalaciones del plugin**. Si no está definida esta variable,
-> el token cae en `scripts/zoho_crm_oauth.json` (compat con setups manuales/monorepo).
+> **`data_dir()`** es el directorio de datos persistentes del plugin, determinista en
+> cualquier contexto (AW-191/196): por defecto `~/.local/share/consultoria-sagitaz/`
+> (override con `CONSULTORIA_SAGITAZ_DATA` o `XDG_DATA_HOME`). Sustituye al antiguo
+> `$CLAUDE_PLUGIN_DATA`, que **solo llega a los hooks** (no a los scripts que una skill
+> ejecuta por Bash), por lo que no servía para que `authorize_crm`/`crm` compartieran ruta.
+> El token vive ahí (fuera del plugin en caché) y **sobrevive a actualizaciones/
+> reinstalaciones del plugin**. Si no existe ahí, cae en `scripts/zoho_crm_oauth.json`
+> (compat con setups manuales/monorepo).
 
 > **NUNCA hagas `git add zoho_crm_oauth.json` ni `git add crm_connected_app.json`.**
 > Si accidentalmente lo commiteas, **revoca el token en Zoho inmediatamente** (ver sección
@@ -172,7 +183,7 @@ Si el `client_secret` se ve comprometido:
 
 | Mensaje | Causa | Solución |
 |---------|-------|----------|
-| `crm_connected_app.json not found` | El fichero no está en `$CLAUDE_PLUGIN_DATA` ni en `scripts/` | Colócalo en `$CLAUDE_PLUGIN_DATA` (o `scripts/`) o exporta `ZCRM_APP_*` |
+| `crm_connected_app.json not found` | El fichero no está en `data_dir()` ni en `scripts/` | Rellena *Client ID/Secret* en los ajustes del plugin (se materializa solo), o colócalo en `data_dir()` (`~/.local/share/consultoria-sagitaz/`) o `scripts/`, o exporta `ZCRM_APP_*` |
 | `ERROR: Org type is 'production'` | Iniciaste sesión con una cuenta de producción | Usa tu cuenta del sandbox "Prueba Salto" |
 | `ERROR: No authorization code received (timeout?)` | Cerraste el navegador o tardaste >120 s | Vuelve a ejecutar y completa el flujo rápidamente |
 | `error=access_denied` | Cancelaste el consentimiento | Ejecuta de nuevo y acepta los permisos |

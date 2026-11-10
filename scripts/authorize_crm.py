@@ -38,19 +38,19 @@ if str(_SCRIPTS) not in _sys.path:
     _sys.path.insert(0, str(_SCRIPTS))
 
 from parametrizacion.crm import resolve_oauth_path as _resolve_oauth_path
+import bootstrap  # scripts/ está en sys.path (ver _SCRIPTS arriba)
 
 
 def resolve_app_creds_path() -> str:
     """Ruta al fichero crm_connected_app.json.
 
-    Prioridad: $CLAUDE_PLUGIN_DATA si el fichero existe ahí; si no, scripts/.
+    Prioridad: data_dir()/crm_connected_app.json si existe ahí (lo materializa el hook
+    SessionStart, AW-196); si no, scripts/crm_connected_app.json (setup manual).
+    Usa data_dir() —NO $CLAUDE_PLUGIN_DATA, que no llega a los scripts de skills—.
     """
-    import os
-    data = os.environ.get("CLAUDE_PLUGIN_DATA", "").strip()
-    if data:
-        plugin_data_path = str(Path(data) / "crm_connected_app.json")
-        if Path(plugin_data_path).exists():
-            return plugin_data_path
+    plugin_data_path = Path(bootstrap.data_dir()) / "crm_connected_app.json"
+    if plugin_data_path.exists():
+        return str(plugin_data_path)
     return str(_SCRIPTS / "crm_connected_app.json")
 
 

@@ -30,6 +30,26 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# scripts/ del plugin en el path para reusar bootstrap.data_dir() como fuente única de
+# la ruta de datos (AW-196 review: DRY, igual que crm.py / authorize_crm.py).
+# Este fichero está en <plugin-root>/skills/ders/scripts/ → parents[3] = <plugin-root>.
+_SCRIPTS_DIR = pathlib.Path(__file__).resolve().parents[3] / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import bootstrap  # noqa: E402  (scripts/ del plugin está en sys.path)
+
+
+def _load_materialized():
+    """Lee data_dir()/transcripciones.json {endpoint, token}, o {} si no existe/es inválido."""
+    f = bootstrap.data_dir() / "transcripciones.json"
+    if not f.exists():
+        return {}
+    try:
+        return json.loads(f.read_text(encoding="utf-8")) or {}
+    except (ValueError, OSError):
+        return {}
+
 
 def _build_url(endpoint, cliente):
     """Construye la URL del endpoint con el parámetro cliente."""
@@ -75,11 +95,22 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
 
+    # Precedencia: CLI > env (defaults de argparse) > data_dir()/transcripciones.json (AW-196).
+    if not args.endpoint or not args.token:
+        mat = _load_materialized()
+        if not args.endpoint:
+            args.endpoint = (mat.get("endpoint") or "").strip()
+        if not args.token:
+            args.token = (mat.get("token") or "").strip()
+
     if not args.endpoint:
-        print("Error: --endpoint o env TRANSCRIPCIONES_ENDPOINT requerido", file=sys.stderr)
+        print("Error: endpoint no configurado. Fija 'Endpoint de transcripciones' en "
+              "los ajustes del plugin, o usa --endpoint / env TRANSCRIPCIONES_ENDPOINT.",
+              file=sys.stderr)
         return 1
     if not args.token:
-        print("Error: --token o env TEAM_API_TOKEN requerido", file=sys.stderr)
+        print("Error: token no configurado. Fija 'Token de equipo' en los ajustes del "
+              "plugin, o usa --token / env TEAM_API_TOKEN.", file=sys.stderr)
         return 1
 
     # Ruta de salida

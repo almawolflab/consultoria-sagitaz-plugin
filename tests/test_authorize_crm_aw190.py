@@ -1,6 +1,8 @@
 """Tests para AW-190 — authorize_crm.py escribe donde crm.py lee (AC-4).
 
-Todos offline: exchange_code y verify_org mockeados.
+Migrados en AW-196: la ruta base ya NO es $CLAUDE_PLUGIN_DATA sino bootstrap.data_dir()
+(configurable con $CONSULTORIA_SAGITAZ_DATA). Todos offline: exchange_code y verify_org
+mockeados.
 """
 import json
 import os
@@ -66,20 +68,21 @@ def _make_urlopen_mock(token_resp=None, org_resp=None):
 class TestDefaultOutResolve:
     """DEFAULT_OUT de authorize_crm debe provenir de crm.resolve_oauth_path(for_write=True)."""
 
-    def test_default_out_sincronia_con_resolve_sin_plugin_data(self, monkeypatch):
-        """Sin CLAUDE_PLUGIN_DATA, resolve_oauth_path(for_write=True) devuelve DEFAULT_CREDS."""
-        monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
-        from parametrizacion.crm import DEFAULT_CREDS, resolve_oauth_path
-        expected = resolve_oauth_path(for_write=True)
-        assert expected == DEFAULT_CREDS
-
-    def test_default_out_sincronia_con_resolve_con_plugin_data(self, monkeypatch, tmp_path):
-        """Con CLAUDE_PLUGIN_DATA, resolve_oauth_path(for_write=True) apunta a data dir."""
-        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    def test_resolve_for_write_apunta_a_data_dir(self, monkeypatch, tmp_path):
+        """resolve_oauth_path(for_write=True) apunta a data_dir()/zoho_crm_oauth.json (AW-196)."""
+        monkeypatch.setenv("CONSULTORIA_SAGITAZ_DATA", str(tmp_path))
+        monkeypatch.delenv("XDG_DATA_HOME", raising=False)
         from parametrizacion.crm import resolve_oauth_path
         expected = resolve_oauth_path(for_write=True)
+        assert expected == str(tmp_path / "zoho_crm_oauth.json")
+
+    def test_resolve_for_write_no_es_default_creds(self, monkeypatch, tmp_path):
+        """for_write ya no cae en DEFAULT_CREDS (scripts/): la ruta canónica es data_dir()."""
+        monkeypatch.setenv("CONSULTORIA_SAGITAZ_DATA", str(tmp_path))
+        from parametrizacion.crm import DEFAULT_CREDS, resolve_oauth_path
+        expected = resolve_oauth_path(for_write=True)
+        assert expected != DEFAULT_CREDS
         assert str(tmp_path) in expected
-        assert expected.endswith("zoho_crm_oauth.json")
 
 
 # ---------------------------------------------------------------------------
@@ -89,9 +92,10 @@ class TestDefaultOutResolve:
 class TestRunAuthFlowWritesResolved:
     """run_authorization_flow escribe en resolve_oauth_path(for_write=True)."""
 
-    def test_escribe_en_plugin_data_y_load_creds_la_lee(self, monkeypatch, tmp_path):
-        """Con CLAUDE_PLUGIN_DATA=tmp, el token cae en tmp/ y crm.load_creds() lo encuentra."""
-        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    def test_escribe_en_data_dir_y_load_creds_la_lee(self, monkeypatch, tmp_path):
+        """Con CONSULTORIA_SAGITAZ_DATA=tmp, el token cae en tmp/ y crm.load_creds() lo encuentra."""
+        monkeypatch.setenv("CONSULTORIA_SAGITAZ_DATA", str(tmp_path))
+        monkeypatch.delenv("XDG_DATA_HOME", raising=False)
         import authorize_crm as ac
         import importlib
         importlib.reload(ac)  # recalcula DEFAULT_OUT con la nueva env
@@ -145,32 +149,34 @@ class TestRunAuthFlowWritesResolved:
 # ---------------------------------------------------------------------------
 
 class TestDefaultAppCreds:
-    """DEFAULT_APP_CREDS: con CLAUDE_PLUGIN_DATA se busca en data dir primero, luego en scripts/."""
+    """resolve_app_creds_path: con data_dir() se busca ahí primero, luego en scripts/ (AW-196)."""
 
-    def test_resolve_app_creds_sin_plugin_data(self, monkeypatch):
-        """Sin CLAUDE_PLUGIN_DATA, la ruta de app creds cae en scripts/."""
-        monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
+    def test_resolve_app_creds_sin_fichero_en_data_dir(self, monkeypatch, tmp_path):
+        """Sin el fichero en data_dir(), la ruta de app creds cae en scripts/."""
+        monkeypatch.setenv("CONSULTORIA_SAGITAZ_DATA", str(tmp_path / "empty"))
+        monkeypatch.delenv("XDG_DATA_HOME", raising=False)
         import authorize_crm as ac
-        # Sin plugin data, la función de resolución debe devolver la ruta en scripts/
         result = ac.resolve_app_creds_path()
         assert "crm_connected_app.json" in result
         assert "scripts" in result or os.path.dirname(ac.__file__) in result
 
-    def test_resolve_app_creds_con_plugin_data_existente_en_data(self, monkeypatch, tmp_path):
-        """Con CLAUDE_PLUGIN_DATA y el fichero ahí, devuelve la ruta del data dir."""
-        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+    def test_resolve_app_creds_con_fichero_en_data_dir(self, monkeypatch, tmp_path):
+        """Con el fichero en data_dir(), devuelve esa ruta."""
+        monkeypatch.setenv("CONSULTORIA_SAGITAZ_DATA", str(tmp_path))
+        monkeypatch.delenv("XDG_DATA_HOME", raising=False)
         app_creds = tmp_path / "crm_connected_app.json"
         app_creds.write_text('{"client_id":"x","client_secret":"y"}')
         import authorize_crm as ac
         result = ac.resolve_app_creds_path()
-        assert str(tmp_path) in result
-        assert "crm_connected_app.json" in result
+        assert result == str(app_creds)
 
-    def test_resolve_app_creds_con_plugin_data_pero_sin_fichero_cae_a_scripts(self, monkeypatch, tmp_path):
-        """Con CLAUDE_PLUGIN_DATA pero sin fichero ahí, cae a scripts/."""
-        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
-        # No creamos el fichero en tmp_path
+    def test_resolve_app_creds_ignora_claude_plugin_data(self, monkeypatch, tmp_path):
+        """CLAUDE_PLUGIN_DATA ya no influye: sin fichero en data_dir() cae a scripts/."""
+        monkeypatch.setenv("CONSULTORIA_SAGITAZ_DATA", str(tmp_path / "empty"))
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path / "ignorar"))
+        (tmp_path / "ignorar").mkdir(parents=True)
+        (tmp_path / "ignorar" / "crm_connected_app.json").write_text("{}")
         import authorize_crm as ac
         result = ac.resolve_app_creds_path()
-        # Debe caer a la ruta de scripts/
+        assert str(tmp_path / "ignorar") not in result
         assert "crm_connected_app.json" in result

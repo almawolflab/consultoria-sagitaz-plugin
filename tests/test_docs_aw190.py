@@ -63,11 +63,14 @@ class TestSetupCrmDoc:
             "setup_crm_consultor.md contiene la ruta antigua del monorepo 'pipeline.parametrizacion.apply'"
         )
 
-    def test_setup_menciona_claude_plugin_data(self):
-        """setup_crm_consultor.md menciona $CLAUDE_PLUGIN_DATA como ubicación del token."""
+    def test_setup_menciona_data_dir(self):
+        """setup_crm_consultor.md menciona data_dir() como ubicación del token (AW-196)."""
         doc = (PLUGIN_ROOT / "docs" / "setup_crm_consultor.md").read_text()
-        assert "CLAUDE_PLUGIN_DATA" in doc, (
-            "setup_crm_consultor.md debe mencionar $CLAUDE_PLUGIN_DATA como ubicación del token"
+        assert "data_dir()" in doc, (
+            "setup_crm_consultor.md debe mencionar data_dir() como ubicación del token"
+        )
+        assert "CONSULTORIA_SAGITAZ_DATA" in doc, (
+            "setup_crm_consultor.md debe mencionar el override CONSULTORIA_SAGITAZ_DATA"
         )
 
     def test_setup_comando_verificacion_correcto(self):

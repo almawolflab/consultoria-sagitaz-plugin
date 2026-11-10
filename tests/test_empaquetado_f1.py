@@ -27,8 +27,8 @@ def test_manifest_valido():
     assert "python_bin" in uc, "python_bin debe seguir existiendo como override opcional"
     assert not uc["python_bin"].get("default"), \
         "python_bin no debe tener default de ruta fija (AW-194: el plugin autodescubre Python)"
-    # version presente (0.1.4 tras el bump de AW-192/193)
-    assert data.get("version") == "0.1.4", f"version incorrecto: {data.get('version')!r}"
+    # version presente (0.1.5 tras el bump de AW-196)
+    assert data.get("version") == "0.1.5", f"version incorrecto: {data.get('version')!r}"
     # displayName presente
     assert "displayName" in data, "falta displayName"
     # $schema presente

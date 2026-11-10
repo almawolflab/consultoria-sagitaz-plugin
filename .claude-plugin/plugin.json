@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "consultoria-sagitaz",
   "displayName": "Consultoría Sagitaz (DERS→Implementación)",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Pipeline de consultoría como skills + scripts validados: DERS, DERCAS, IR, matriz CRM, plan e implementación REST v8 (solo sandbox).",
   "author": { "name": "Sagitaz / AIOps" },
   "keywords": ["sagitaz", "zoho", "crm", "ders", "dercas", "consultoria"],
@@ -22,6 +22,17 @@
       "type": "string",
       "title": "Ruta a Python 3 (opcional)",
       "description": "Opcional: ruta a un intérprete Python ≥ 3.10. Si se deja vacío, el plugin lo autodescubre al abrir sesión. Solo hace falta fijarlo si la autodetección no encuentra uno."
+    },
+    "crm_client_id": {
+      "type": "string",
+      "title": "Zoho CRM — Client ID (connected app)",
+      "description": "Client ID de la connected app de Zoho CRM (sandbox). Solo necesario para /implementar. Se materializa al abrir sesión para el flujo OAuth."
+    },
+    "crm_client_secret": {
+      "type": "string",
+      "title": "Zoho CRM — Client Secret (connected app)",
+      "description": "Client Secret de la connected app de Zoho CRM (sandbox). Solo necesario para /implementar. No se comparte.",
+      "sensitive": true
     }
   }
 }
