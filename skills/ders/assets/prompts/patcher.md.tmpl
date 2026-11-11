@@ -1,30 +1,36 @@
-<!-- origen: pipeline/prompts/patcher.md.tmpl (AW-188) -->
-# Tarea: aplicar la revisión del consultor a un DERS ya generado y producir la versión revisada
+<!-- origen: pipeline/prompts/patcher.md.tmpl (AW-188); adaptado para consumir el veredicto del juez (AW-197) -->
+# Tarea: aplicar el veredicto del juez a un borrador de DERS y producir la versión corregida
 
-Eres un consultor de implantación de software. Partes de un **DERS ya generado** (JSON, incluido más
-abajo) y de las **instrucciones grabadas del consultor** (transcritas, incluidas más abajo) que dictan,
-apartado por apartado, cómo corregirlo, reformularlo y reestructurarlo. Debes producir el **DERS
-revisado** aplicando FIELMENTE lo que pide el consultor.
+Partes de un **borrador de DERS** (JSON, incluido más abajo) y del **veredicto de un auditor
+independiente** (JSON, incluido más abajo), que señala defectos concretos por apartado. Debes
+producir el **DERS corregido** aplicando los defectos **reparables** del veredicto.
 
-Esto es una **revisión guiada por el consultor**, NO una regeneración libre: aplicas SUS cambios sobre
-NUESTRO contenido. **No inventes** requerimientos ni datos nuevos del cliente, y **no pierdas**
-información del cliente ya recogida en el DERS base; reorganiza, reformula y depura según lo que dicta.
+Esto es una **corrección guiada por el veredicto**, NO una regeneración libre: corriges SOBRE
+nuestro contenido. **No inventes** requerimientos ni datos nuevos del cliente, y **no pierdas**
+información del cliente ya recogida en el borrador; reorganiza, reformula y depura según los defectos.
 
-## Cómo interpretar las instrucciones
+## Borrador de DERS (base a corregir)
 
-- Las instrucciones del consultor pueden **referirse a otra numeración** (revisa un borrador distinto).
-  Mapea cada instrucción **por contenido/tema** al apartado correspondiente del DERS base, no por el
-  número que mencione.
-- Si una corrección **ya está aplicada** en el DERS base, déjala como está (no la deshagas).
-- Aplica **solo** lo que el consultor dicta. Cuando diga explícitamente "esto lo quitaría / no lo
-  añadiría / esto no aplica", quítalo. Cuando diga "añadiría / separaría / reformularía", hazlo.
+```json
+{{DERS_JSON}}
+```
 
-## Estructura canónica de apartados (para reestructurar cuando el consultor lo pida)
+## Veredicto del juez (defectos a aplicar)
 
-Cuando el consultor pida partir un apartado en sub-bloques con nombre, usa esta estructura canónica
-como destino y emítelos como `subapartados` reales del apartado:
+```json
+{{VEREDICTO_JSON}}
+```
 
-{{PLANTILLA_ESTRUCTURA}}
+## Cómo interpretar el veredicto
+
+- Cada defecto trae `{ "regla", "numero", "detalle" }`. Mapea el `numero` al apartado correspondiente
+  del borrador y corrige **lo que describe `detalle`**.
+- Aplica solo defectos **reparables** con la evidencia disponible (errores claros de colocación,
+  redacción, grounding o formato). Lo que dependa de una **decisión del consultor** (no un error
+  objetivo) NO lo inventes: márcalo `[PENDIENTE DE CONFIRMAR CON CLIENTE]`.
+- Si un defecto ya está corregido en el borrador, déjalo como está (no lo deshagas).
+- La **numeración es FIJA** (árbol canónico 2026): no renumeres ni muevas requerimientos a números
+  que no existan en la plantilla.
 
 ## Reglas de autoría (aplican a todo el documento)
 
@@ -36,19 +42,21 @@ como destino y emítelos como `subapartados` reales del apartado:
   LeadChain por contactos/mes), que no son licencias.
 - **No conviertas en requerimiento lo que ejecuta el propio cliente** (p.ej. limpieza/análisis previo
   de datos): va en la `situación` como contexto, no en `requerimientos_funcionales`.
-- **Cero invención.** Si el consultor deja algo abierto, márcalo `[PENDIENTE DE CONFIRMAR CON CLIENTE]`.
+- **Cero invención.** Si un defecto no se puede reparar con lo que hay, márcalo
+  `[PENDIENTE DE CONFIRMAR CON CLIENTE]` en vez de inventar.
 
 ## Formato de salida (JSON)
 
-Devuelve UN ÚNICO objeto JSON con **el mismo esquema que el DERS base**, con estas particularidades:
+Devuelve UN ÚNICO objeto JSON con **el mismo esquema que el borrador** (`esquema_vacio`):
 
-- `requerimientos[]`: `id` renumerado `5.1..5.n` en orden; cada uno con `titulo`, `situacion`,
-  `requerimientos_funcionales` (lista), `analisis_viabilidad` = null, `criterios_aceptacion` = null,
-  `adjuntos`, `evidencia`, `confianza`. Cuando el consultor pida sub-bloques, añade
-  `subapartados: [{ "id": "5.x.y", "titulo": "", "situacion": "", "requerimientos_funcionales": [] }]`.
-- `especificaciones`, `objetivos_cliente`, `solucion_buscada`, `fuera_de_alcance`: como en el base,
-  con los cambios que dicte el consultor.
+- `requerimientos[]`: `id` (numérico canónico "5.1".."11", sin renumerar); cada uno con `titulo`,
+  `situacion`, `requerimientos_funcionales` (lista), `analisis_viabilidad` = null,
+  `criterios_aceptacion` = null, `adjuntos`, `evidencia`, `confianza`. Cuando un defecto pida partir
+  un apartado en sub-bloques, añade `subapartados: [{ "id": "5.x.y", "titulo": "", "situacion": "",
+  "requerimientos_funcionales": [] }]` (el `id` del subapartado cuelga del `id` del requerimiento).
+- `cliente`, `documento`, `especificaciones`, `objetivos_cliente`, `solucion_buscada`,
+  `fuera_de_alcance`: como en el borrador, con los cambios que dicten los defectos.
 - Añade una clave extra **`_changelog`**: lista de `{ "apartado": "", "cambio": "", "origen": "" }`
-  donde `origen` es el audio/instrucción del que sale el cambio (p.ej. "m04 GDPR"). Es la trazabilidad.
+  donde `origen` es la `regla`+`numero` del defecto que motivó el cambio. Es la trazabilidad.
 
 No escribas nada fuera del objeto JSON.

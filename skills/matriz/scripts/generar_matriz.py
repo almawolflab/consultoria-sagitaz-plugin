@@ -26,8 +26,9 @@ if str(SCRIPTS) not in sys.path:
 
 try:
     from parametrizacion.ir import load_ir
-    from parametrizacion.generador_plantilla import ir_a_propuestas
+    from parametrizacion.generador_plantilla import ir_a_propuestas, resumen_plantilla
     from parametrizacion.plantilla_io import cargar_descriptor, escribir_premarcada
+    from docx import generar_docx  # scripts/docx/ (módulo compartido AW-200)
 except ImportError as e:
     print(f"Error: no se puede importar módulos de parametrizacion: {e}", file=sys.stderr)
     print(f"  Buscado en: {SCRIPTS}", file=sys.stderr)
@@ -84,6 +85,19 @@ def main(argv=None):
         print(f"Error al generar el xlsx: {e}", file=sys.stderr)
         return 1
 
+    meta = ir.get("meta", {}) or {}
+    cliente = meta.get("cliente", ir_path.parent.name)
+
+    # Resumen automático-vs-manual en DOCX (AW-200 #3): lo que NO se automatiza (manual_todo,
+    # buckets más-adelante/manual) junto al recuento por módulo, para que el consultor lo vea.
+    resumen_path = out_path.parent / "matriz_resumen.docx"
+    try:
+        md = resumen_plantilla(ir, descriptor)
+        generar_docx.build_markdown(md, str(resumen_path), title=f"Matriz — {cliente}")
+    except Exception as e:
+        print(f"Error al generar el resumen DOCX: {e}", file=sys.stderr)
+        return 1
+
     # Imprimir recuento por módulo
     total = 0
     lineas = []
@@ -92,9 +106,8 @@ def main(argv=None):
         total += n
         lineas.append(f"  {modulo}: {n} campo(s)")
 
-    meta = ir.get("meta", {}) or {}
-    cliente = meta.get("cliente", ir_path.parent.name)
     print(f"Matriz CRM generada: {out_path}")
+    print(f"Resumen (auto vs manual): {resumen_path}")
     print(f"Cliente: {cliente} | Total propuestas: {total} campo(s)")
     if lineas:
         print("Por módulo:")

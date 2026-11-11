@@ -9,17 +9,22 @@ pestañas, cabeceras agrupadas). El descriptor `assets/plantilla_crm.json` aport
 el vocabulario de tipos.
 
 Depende de **openpyxl** (Python puro, vendorizado). Ver contrato `docs/27_contrato_plantilla_parametrizacion.md`.
-NOTA: el logo (imagen embebida) requiere Pillow para conservarse al re-guardar con openpyxl; en Catalyst
-(sin Pillow) se pierde en la pre-marcada → re-inyección por zip pendiente (mejora posterior). `generar_blank`
-copia el fichero byte a byte, así que el blank sí conserva el logo.
+NOTA: openpyxl sin Pillow descarta las imágenes embebidas (logo) al re-guardar; AW-202 lo arregla con
+`_reinyectar_media()`, que tras el `save` copia por zip `xl/media`/`xl/drawings` desde la base y
+re-inserta el `<drawing>` en cada hoja. `generar_blank` ya conservaba el logo (copia byte a byte).
 """
 import json
+import re
 import shutil
+import zipfile
 from copy import copy
 from pathlib import Path
 
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
+
+_DRAWING_REL_TYPE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing"
+_R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
 BASE = Path(__file__).resolve().parent.parent          # plugin-claude/scripts/
 ASSETS = BASE / "assets"
@@ -163,7 +168,86 @@ def escribir_premarcada(descriptor, propuestas, out_xlsx):
             ws.cell(rr, cols["campo"]).fill = _FILL_AMARILLO
             rr += 1
     wb.save(str(out_xlsx))
+    _reinyectar_media(_base_path(descriptor), out_xlsx)   # AW-202: recuperar el logo que openpyxl descarta
     return out_xlsx
+
+
+def _reinyectar_media(base_xlsx, out_xlsx):
+    """Re-inyecta en `out_xlsx` las imágenes que openpyxl descarta al re-guardar sin Pillow.
+
+    openpyxl (sin Pillow) elimina `xl/media/*`, `xl/drawings/*` (+rels), los rels de hoja y el
+    `<drawing>` del sheet. Como los nombres de hoja se conservan 1:1 entre base y salida, copiamos
+    esos parts desde la base y re-insertamos el `<drawing r:id=…/>` en cada hoja que tenía uno.
+    Es idempotente y seguro aunque haya Pillow (no duplica: solo añade lo ausente)."""
+    base_xlsx, out_xlsx = Path(base_xlsx), Path(out_xlsx)
+    with zipfile.ZipFile(str(base_xlsx)) as zb:
+        base = {n: zb.read(n) for n in zb.namelist()}
+    with zipfile.ZipFile(str(out_xlsx)) as zo:
+        out = {n: zo.read(n) for n in zo.namelist()}
+
+    if not any(n.startswith("xl/media/") for n in base):
+        return                                    # base sin logo → nada que re-inyectar
+
+    # 1) copiar media + drawings (+ sus rels) verbatim desde la base, si faltan en la salida
+    for name, data in base.items():
+        if name.startswith("xl/media/") or name.startswith("xl/drawings/"):
+            out.setdefault(name, data)
+
+    # 2) restaurar los rels de hoja con drawing y re-insertar el <drawing> en el sheet xml
+    for name, data in base.items():
+        m = re.match(r"xl/worksheets/_rels/(sheet\d+)\.xml\.rels$", name)
+        if not m:
+            continue
+        rels = data.decode("utf-8")
+        rid = _rid_drawing(rels)
+        if not rid:
+            continue
+        # Restaurar SOLO el <Relationship> del drawing: si openpyxl generó un rels de hoja (p.ej. por
+        # un hyperlink), inyectamos el tag sin machacarlo; si no lo generó, copiamos la base entera.
+        drel = re.search(r'<Relationship\b[^>]*Id="%s"[^>]*/>' % re.escape(rid), rels)
+        if not drel:
+            continue
+        drel = drel.group(0)
+        if name in out:
+            cur = out[name].decode("utf-8")
+            if drel not in cur:
+                out[name] = cur.replace("</Relationships>", drel + "</Relationships>").encode("utf-8")
+        else:
+            out[name] = data                      # openpyxl no generó rels de hoja → copiar la base
+        sheet_part = "xl/worksheets/%s.xml" % m.group(1)
+        if sheet_part in out:
+            sx = out[sheet_part].decode("utf-8")
+            if "<drawing" not in sx:
+                drawing = '<drawing xmlns:r="%s" r:id="%s"/>' % (_R_NS, rid)
+                sx = sx.replace("</worksheet>", drawing + "</worksheet>", 1)
+                out[sheet_part] = sx.encode("utf-8")
+
+    # 3) content-types: asegurar Default png + un Override por cada drawingN.xml
+    ct = out["[Content_Types].xml"].decode("utf-8")
+    if 'Extension="png"' not in ct:
+        ct = ct.replace("</Types>", '<Default Extension="png" ContentType="image/png"/></Types>')
+    for name in out:
+        if re.match(r"xl/drawings/drawing\d+\.xml$", name) and ('PartName="/%s"' % name) not in ct:
+            ct = ct.replace("</Types>",
+                            '<Override PartName="/%s" ContentType="application/vnd.openxmlformats-'
+                            'officedocument.drawing+xml"/></Types>' % name)
+    out["[Content_Types].xml"] = ct.encode("utf-8")
+
+    # 4) reescribir el zip
+    with zipfile.ZipFile(str(out_xlsx), "w", zipfile.ZIP_DEFLATED) as z:
+        for name, data in out.items():
+            z.writestr(name, data)
+
+
+def _rid_drawing(rels_xml):
+    """Devuelve el Id del Relationship de tipo drawing (o None)."""
+    for m in re.finditer(r"<Relationship\b[^>]*/>", rels_xml):
+        tag = m.group(0)
+        if _DRAWING_REL_TYPE in tag:
+            idm = re.search(r'Id="([^"]+)"', tag)
+            if idm:
+                return idm.group(1)
+    return None
 
 
 # ---------------------------------------------------------------- leer plantilla rellena

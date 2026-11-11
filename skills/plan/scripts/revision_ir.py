@@ -31,7 +31,8 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 try:
-    from parametrizacion.ir import load_ir, ordered_items, validate, SECTIONS
+    from parametrizacion.ir import load_ir, ordered_items, validate, validar_semantico, SECTIONS
+    from parametrizacion.plantilla_io import cargar_descriptor
     from parametrizacion.summary import resumen_md
 except ImportError as e:
     print(f"Error: no se puede importar módulos de parametrizacion: {e}", file=sys.stderr)
@@ -101,6 +102,15 @@ def revisar(ir):
         items_ord = list(ordered_items(ir))
     except ValueError as e:
         errores.append(str(e))
+
+    # 2b. Checks semánticos (AW-200 #5): errores bloquean; avisos → observaciones.
+    try:
+        descriptor = cargar_descriptor(None)
+    except Exception:  # noqa: BLE001 — sin descriptor, validar_semantico degrada
+        descriptor = {}
+    errores_sem, avisos_sem = validar_semantico(ir, descriptor)
+    errores.extend(errores_sem)
+    observaciones.extend(avisos_sem)
 
     # 3. Colisiones de match
     col = _check_colisiones_match(ir)

@@ -64,14 +64,33 @@ python skills/dercas/scripts/validar_ir.py \
   ~/Sagitaz/clientes/<cliente>/ir.json
 ```
 
-Usa `parametrizacion.ir` (`load_ir` + `validate` + `ordered_items`) vía sys.path a
-`plugin-claude/scripts/`. Comprueba:
+Usa `parametrizacion.ir` (`load_ir` + `validate` + `ordered_items` + `validar_semantico`) vía sys.path
+a `plugin-claude/scripts/`. Comprueba:
 
 - `id` único por sección.
 - `match`, `payload` presentes.
 - `depends_on` sin ciclos ni referencias colgantes.
+- **Semántico (AW-200):** `data_type` válido contra el descriptor, `match.module == payload.module`,
+  que el módulo exista en el descriptor y la coherencia de picklists. Los *avisos* (rol raíz
+  duplicable, campo manual sin `manual_todo`) se imprimen pero **no** bloquean.
 
 Sale con rc≠0 y detalle si el IR no es válido.
+
+### Emisión del DERCAS.docx (script determinista, AW-200 #8 + AW-202)
+
+Una vez cerrado el DERCAS, Claude genera el **DOCX formal branded** (entregable de cliente) junto al JSON:
+
+```bash
+python scripts/docx/generar_docx.py \
+  ~/Sagitaz/clientes/<cliente>/DERCAS.json \
+  ~/Sagitaz/clientes/<cliente>/DERCAS.docx \
+  --dercas --formal
+```
+
+Reusa el generador compartido (`build(..., dercas=True)`): renderiza `analisis_viabilidad` y
+`criterios_aceptacion` por requerimiento con anclas estables. Es función pura del JSON (stdlib pura).
+`--formal` (AW-202) parte del brand-kit 2026 (logo/portada/firma) y filtra marcadores/trazabilidad
+internos. (Omite `--formal` para el borrador interno; `--plano` para salida sin branding.)
 
 ---
 
@@ -81,7 +100,8 @@ Sale con rc≠0 y detalle si el IR no es válido.
 |-------|---------|
 | **Claude** (fase 1) | Aplica `patcher_dercas.md.tmpl` → `DERCAS.json` con viabilidad + criterios |
 | **Claude** (fase 2) | Aplica `mapper_ir.md.tmpl` → `ir.json` con reglas duras |
-| **Script** (`validar_ir.py`) | Validación estructural del IR (ids, match, deps) — sin modelo |
+| **Script** (`validar_ir.py`) | Validación estructural **y semántica** del IR (ids, match, deps, data_type/módulo/picklist) — sin modelo |
+| **Script** (`scripts/docx/generar_docx.py`) | Emite `DERCAS.docx` **formal branded** (`build(dercas=True, formal=True)`) — generador compartido |
 
 ---
 
@@ -90,9 +110,8 @@ Sale con rc≠0 y detalle si el IR no es válido.
 | Fichero | Ruta convención (§4.3) |
 |---------|----------------------|
 | `DERCAS.json` | `~/Sagitaz/clientes/<cliente>/DERCAS.json` |
+| `DERCAS.docx` | `~/Sagitaz/clientes/<cliente>/DERCAS.docx` (formal branded: logo/portada/firma, limpio — AW-202) |
 | `ir.json` | `~/Sagitaz/clientes/<cliente>/ir.json` ← entrada de `matriz`, `plan`, `implementar` |
-
-> Render `.docx` del DERCAS: **pendiente/opcional en v1** (el generador de DOCX del plugin no está portado aún).
 
 ---
 

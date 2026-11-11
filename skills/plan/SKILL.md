@@ -83,6 +83,21 @@ Claude genera `Plan.md` con:
 - Veredicto de la revisión (aprobado / observaciones / bloqueante).
 - Orden de aplicación recomendado (topológico por `depends_on`).
 
+### Paso 4 — Plan.docx branded (script determinista, AW-202)
+
+Tras aprobar `Plan.md`, Claude emite el **DOCX branded** (chrome 2026: logo/cabecera/footer/estilos):
+
+```bash
+python -c "import sys; sys.path.insert(0,'scripts'); from docx import generar_docx; \
+  generar_docx.build_markdown(open('~/Sagitaz/clientes/<cliente>/Plan.md').read(), \
+  '~/Sagitaz/clientes/<cliente>/Plan.docx', branded=True, \
+  meta={'titulo':'Plan de implementación — <cliente>','cliente':'<cliente>'})"
+```
+
+Reusa el generador DOCX compartido (`build_markdown(..., branded=True)`): portada simple + cuerpo del
+markdown (encabezados, tablas, listas) con los estilos de la plantilla. Degrada a `.docx` plano si el
+brand-kit falta.
+
 ---
 
 ## Reparto criterio ↔ determinismo
@@ -103,6 +118,7 @@ Claude genera `Plan.md` con:
 | `revision.md` | `~/Sagitaz/clientes/<cliente>/revision.md` |
 | `revision_fidelidad.json` | `~/Sagitaz/clientes/<cliente>/revision_fidelidad.json` |
 | `Plan.md` | `~/Sagitaz/clientes/<cliente>/Plan.md` |
+| `Plan.docx` | `~/Sagitaz/clientes/<cliente>/Plan.docx` (branded: logo/cabecera/estilos — AW-202) |
 
 ---
 

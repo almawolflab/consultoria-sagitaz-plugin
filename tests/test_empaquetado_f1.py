@@ -1,9 +1,25 @@
 """AW-189 — Fase 1 TDD: manifiesto plugin.json + ausencia de bin/ toplevel."""
 import json
+import zipfile
 from pathlib import Path
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
+BRANDKIT = PLUGIN_ROOT / "scripts" / "docx" / "assets" / "brandkit_2026.docx"
+
+
+def test_brandkit_empaquetado_valido():
+    """AW-202: el brand-kit se empaqueta con el plugin, es un .docx válido con chrome y sin
+    comentarios editoriales ni datos de cliente."""
+    assert BRANDKIT.exists(), f"falta el brand-kit: {BRANDKIT}"
+    assert zipfile.is_zipfile(str(BRANDKIT)), "el brand-kit no es un zip/.docx válido"
+    with zipfile.ZipFile(str(BRANDKIT)) as z:
+        names = set(z.namelist())
+        doc = z.read("word/document.xml").decode("utf-8", "replace")
+    assert "word/header1.xml" in names and "word/styles.xml" in names
+    assert any(n.startswith("word/media/") for n in names), "brand-kit sin logo"
+    assert "word/comments.xml" not in names, "brand-kit con comentarios editoriales"
+    assert "Instrucciones:" not in doc, "brand-kit con textos editoriales de la plantilla"
 
 
 def test_manifest_valido():
@@ -27,8 +43,8 @@ def test_manifest_valido():
     assert "python_bin" in uc, "python_bin debe seguir existiendo como override opcional"
     assert not uc["python_bin"].get("default"), \
         "python_bin no debe tener default de ruta fija (AW-194: el plugin autodescubre Python)"
-    # version presente (0.1.5 tras el bump de AW-196)
-    assert data.get("version") == "0.1.5", f"version incorrecto: {data.get('version')!r}"
+    # version presente (0.1.8 tras el bump de AW-202)
+    assert data.get("version") == "0.1.8", f"version incorrecto: {data.get('version')!r}"
     # displayName presente
     assert "displayName" in data, "falta displayName"
     # $schema presente

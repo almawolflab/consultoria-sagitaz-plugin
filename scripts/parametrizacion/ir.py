@@ -50,6 +50,104 @@ def validate(ir):
     return True
 
 
+# ---------------------------------------------------------------- validación semántica (AW-200 #5)
+
+# El descriptor no lista roles raíz estándar → constante mínima documentada (normalizada a minúsculas).
+_ROLES_RAIZ = {"ceo", "gerencia", "dirección general", "direccion general"}
+
+_BUCKETS_NO_API = ("mas_adelante", "manual")
+
+
+def tipos_validos(descriptor):
+    """data_types Zoho reconocidos: propiedad 'zoho' de cada tipo (NO las claves, que van en español)."""
+    return {info.get("zoho") for info in (descriptor or {}).get("tipos", {}).values() if info.get("zoho")}
+
+
+def modulos_validos(descriptor):
+    """api_names válidos: descriptor['modulos'] es una lista de dicts con 'api_name'."""
+    return {m.get("api_name") for m in (descriptor or {}).get("modulos", []) if m.get("api_name")}
+
+
+def _bucket_de_zoho(zoho, descriptor):
+    """data_type Zoho → bucket (v1|mas_adelante|manual). Desconocido → 'manual'. Sin descriptor → None."""
+    for info in (descriptor or {}).get("tipos", {}).values():
+        if info.get("zoho") == zoho:
+            return info.get("bucket", "manual")
+    return None if not (descriptor or {}).get("tipos") else "manual"
+
+
+def _check_picklist(item):
+    """pick_list_values: lista no vacía, cada valor con display_value+actual_value, sin display duplicado."""
+    errs = []
+    iid = item.get("id", "?")
+    plv = item.get("payload", {}).get("pick_list_values")
+    if not plv or not isinstance(plv, list):
+        errs.append(f"{iid}: picklist sin 'pick_list_values' (lista no vacía)")
+        return errs
+    vistos = set()
+    for v in plv:
+        if not isinstance(v, dict) or not v.get("display_value") or not v.get("actual_value"):
+            errs.append(f"{iid}: picklist con valor sin 'display_value'/'actual_value'")
+            continue
+        dv = v["display_value"]
+        if dv in vistos:
+            errs.append(f"{iid}: picklist con 'display_value' duplicado '{dv}'")
+        vistos.add(dv)
+    return errs
+
+
+def _avisos_roles_raiz(ir):
+    out = []
+    for r in ir.get("roles", []) or []:
+        nombre = (r.get("match", {}) or {}).get("name", "")
+        if nombre and nombre.strip().lower() in _ROLES_RAIZ:
+            out.append(f"{r.get('id', '?')}: rol '{nombre}' coincide con un rol raíz estándar "
+                       f"(posible duplicado)")
+    return out
+
+
+def _avisos_manual_todo(ir, descriptor):
+    out = []
+    manual_ids = {m.get("item") for m in (ir.get("manual_todo", []) or [])}
+    for item in ir.get("fields", []) or []:
+        payload = item.get("payload", {}) or {}
+        bucket = _bucket_de_zoho(payload.get("data_type"), descriptor)
+        if bucket in _BUCKETS_NO_API:
+            label = payload.get("field_label") or item.get("id", "?")
+            if label not in manual_ids and item.get("id") not in manual_ids:
+                out.append(f"{item.get('id', '?')}: campo '{label}' en bucket '{bucket}' "
+                           f"sin entrada en manual_todo (trazabilidad)")
+    return out
+
+
+def validar_semantico(ir, descriptor):
+    """Checks semánticos sobre un IR ya estructuralmente válido.
+
+    Devuelve `(errores, avisos)`: `errores` bloquean (rc=1); `avisos` son observaciones de
+    trazabilidad. NO lanza. Degrada sin falsos positivos si el descriptor viene incompleto
+    (sets vacíos → se omite ese check).
+    """
+    errores, avisos = [], []
+    tvalid = tipos_validos(descriptor)
+    mvalid = modulos_validos(descriptor)
+    for item in ir.get("fields", []) or []:
+        iid = item.get("id", "?")
+        payload, match = item.get("payload", {}) or {}, item.get("match", {}) or {}
+        dt = payload.get("data_type")
+        if tvalid and dt not in tvalid:
+            errores.append(f"{iid}: data_type '{dt}' no es válido")
+        if match.get("module") != payload.get("module"):
+            errores.append(f"{iid}: match.module ({match.get('module')!r}) != "
+                           f"payload.module ({payload.get('module')!r})")
+        if mvalid and match.get("module") not in mvalid:
+            errores.append(f"{iid}: módulo '{match.get('module')}' no existe en el descriptor")
+        if dt in ("picklist", "multiselectpicklist"):
+            errores += _check_picklist(item)
+    avisos += _avisos_roles_raiz(ir)
+    avisos += _avisos_manual_todo(ir, descriptor)
+    return errores, avisos
+
+
 def ordered_items(ir):
     """Devuelve [(section, item), ...] en orden topológico por `depends_on`.
 

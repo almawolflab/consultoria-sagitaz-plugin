@@ -23,7 +23,9 @@ try:
     # load_ir llama internamente a ir.validate (contrato de la spec §4.5.2:
     # "validación del IR contra parametrizacion/ir.py::validate"); ordered_items
     # añade la detección de ciclos y referencias colgantes en depends_on.
-    from parametrizacion.ir import load_ir, ordered_items
+    # validar_semantico (AW-200) añade checks de data_type/módulo/picklist contra el descriptor.
+    from parametrizacion.ir import load_ir, ordered_items, validar_semantico
+    from parametrizacion.plantilla_io import cargar_descriptor
 except ImportError as e:
     print(f"Error: no se puede importar parametrizacion.ir: {e}", file=sys.stderr)
     print(f"  Buscado en: {SCRIPTS}", file=sys.stderr)
@@ -119,6 +121,20 @@ def main(argv=None):
     except ValueError as e:
         print(f"IR inválido (dependencias): {e}", file=sys.stderr)
         return 1
+
+    # Checks semánticos (AW-200 #5): data_type válido, match.module == payload.module,
+    # módulo existente en el descriptor y coherencia de picklists. `avisos` no bloquean.
+    try:
+        descriptor = cargar_descriptor(None)
+    except Exception:  # noqa: BLE001 — sin descriptor, degrada (validar_semantico omite esos checks)
+        descriptor = {}
+    errores_sem, avisos_sem = validar_semantico(ir, descriptor)
+    if errores_sem:
+        for err in errores_sem:
+            print(f"IR inválido (semántico): {err}", file=sys.stderr)
+        return 1
+    for aviso in avisos_sem:
+        print(f"Aviso: {aviso}")
 
     n = sum(len(ir.get(s, []) or []) for s in ("fields", "roles", "profiles", "workflows"))
     secciones = [s for s in ("fields", "roles", "profiles", "workflows") if ir.get(s)]
